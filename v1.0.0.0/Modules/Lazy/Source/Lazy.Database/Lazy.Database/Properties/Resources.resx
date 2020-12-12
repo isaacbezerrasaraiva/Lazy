@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LazyDatabaseExceptionConnectionAlreadyClosed" xml:space="preserve">
+    <value>The database connection is already closed!</value>
+  </data>
+  <data name="LazyDatabaseExceptionConnectionAlreadyOpen" xml:space="preserve">
+    <value>The database connection is already open!</value>
+  </data>
+  <data name="LazyDatabaseExceptionConnectionNotOpen" xml:space="preserve">
+    <value>The database connection is not open!</value>
+  </data>
+  <data name="LazyDatabaseExceptionConnectionStringNullOrEmpty" xml:space="preserve">
+    <value>The database connection string cannot be null or empty!</value>
+  </data>
+  <data name="LazyDatabaseExceptionDataRowNullOrColumnZeroLenght" xml:space="preserve">
+    <value>The datarow cannot be null and must have at least on column!</value>
+  </data>
+  <data name="LazyDatabaseExceptionDataTableNullOrRowsZeroLenght" xml:space="preserve">
+    <value>The datatable cannot be null and must have at least one row!</value>
+  </data>
+  <data name="LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght" xml:space="preserve">
+    <value>The datatable must have at least one primary key column!</value>
+  </data>
+  <data name="LazyDatabaseExceptionDataTableRowsColumnsZeroLenght" xml:space="preserve">
+    <value>The datatable rows must have at least one column!</value>
+  </data>
+  <data name="LazyDatabaseExceptionFieldsAndValuesNotMatch" xml:space="preserve">
+    <value>The fields array and values array must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionFieldsNullOrZeroLenght" xml:space="preserve">
+    <value>The fields array cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch" xml:space="preserve">
+    <value>The key fields array and key values array must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionKeyFieldsNullOrZeroLenght" xml:space="preserve">
+    <value>The key fields array cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionKeyValuesListNullOrZeroLenght" xml:space="preserve">
+    <value>The key values array list cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionKeyValuesNullOrZeroLenght" xml:space="preserve">
+    <value>The key values array cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionNonKeyFieldsAndNonKeyValuesNotMatch" xml:space="preserve">
+    <value>The non key fields array and non key values array must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght" xml:space="preserve">
+    <value>The non key fields array cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionNonKeyValuesListAndKeyValueListNotMatch" xml:space="preserve">
+    <value>The non key values array list and key values array list must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionNonKeyValuesListNullOrZeroLenght" xml:space="preserve">
+    <value>The non key values array list cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionNonKeyValuesNullOrZeroLenght" xml:space="preserve">
+    <value>The non key values array cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionProcedureNameNullOrEmpty" xml:space="preserve">
+    <value>The procedure name cannot be null or empty!</value>
+  </data>
+  <data name="LazyDatabaseExceptionSqlNullOrEmpty" xml:space="preserve">
+    <value>The sql sentence cannot be null or empty!</value>
+  </data>
+  <data name="LazyDatabaseExceptionTableNameNullOrEmpty" xml:space="preserve">
+    <value>The table name cannot be null or empty!</value>
+  </data>
+  <data name="LazyDatabaseExceptionTransactionAlreadyStarted" xml:space="preserve">
+    <value>The database transaction was already started!</value>
+  </data>
+  <data name="LazyDatabaseExceptionTransactionNotInitialized" xml:space="preserve">
+    <value>The database transaction was not initialized!</value>
+  </data>
+  <data name="LazyDatabaseExceptionValuesAndParametersNotMatch" xml:space="preserve">
+    <value>The values array and parameters array must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionValuesListAndKeyValueListNotMatch" xml:space="preserve">
+    <value>The values array list and key values array list must have the same number of elements!</value>
+  </data>
+  <data name="LazyDatabaseExceptionValuesListNullOrZeroLenght" xml:space="preserve">
+    <value>The values array list cannot be null or zero lenght!</value>
+  </data>
+  <data name="LazyDatabaseExceptionValuesNullOrZeroLenght" xml:space="preserve">
+    <value>The values array cannot be null or zero lenght!</value>
+  </data>
+</root>

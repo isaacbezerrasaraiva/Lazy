@@ -27,6 +27,18 @@ namespace Lazy
             {
                 return Activator.CreateInstance(Assembly.LoadFrom(assemblyPath).GetType(classFullName));
             }
+
+            /// <summary>
+            /// Create an object instance of the specified class located on specified assembly
+            /// </summary>
+            /// <param name="assemblyPath">The assembly path witch contains the desired class</param>
+            /// <param name="classFullName">The class name with its namespace</param>
+            /// <param name="parameters">The parameters of desired object constructor</param>
+            /// <returns>The object instance</returns>
+            public static Object CreateInstance(String assemblyPath, String classFullName, Object[] parameters)
+            {
+                return Activator.CreateInstance(Assembly.LoadFrom(assemblyPath).GetType(classFullName), parameters);
+            }
         }
     }
 }

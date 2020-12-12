@@ -151,6 +151,16 @@ namespace Lazy.Database
         public abstract DataTable QueryTable(String sql, String tableName, Object[] values, String[] parameters);
 
         /// <summary>
+        /// Execute a sql stored procedure
+        /// </summary>
+        /// <param name="procedureName">The stored procedure name</param>
+        /// <param name="tableName">The desired table name</param>
+        /// <param name="values">The stored procedure parameters values</param>
+        /// <param name="parameters">The stored procedure parameters</param>
+        /// <returns>The generated table from the stored procedure</returns>
+        public abstract DataTable QueryProcedure(String procedureName, String tableName, Object[] values, String[] parameters);
+
+        /// <summary>
         /// Execute a sql insert sentence
         /// </summary>
         /// <param name="tableName">The table name to insert the record</param>

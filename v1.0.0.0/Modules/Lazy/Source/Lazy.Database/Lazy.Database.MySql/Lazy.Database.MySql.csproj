@@ -28,6 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Lazy" Version="1.0.0" />
     <PackageReference Include="Lazy.Database" Version="1.0.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.22" />
   </ItemGroup>
 
 </Project>
