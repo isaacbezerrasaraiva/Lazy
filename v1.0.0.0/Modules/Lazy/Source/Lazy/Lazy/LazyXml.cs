@@ -216,6 +216,26 @@ namespace Lazy
         }
 
         /// <summary>
+        /// Read a xml node inner text
+        /// </summary>
+        /// <param name="xPath">The xPath of the xml node</param>
+        /// <returns>The located xml node inner text</returns>
+        public String ReadNodeInnerText(String xPath)
+        {
+            return this.xmlDocument.SelectSingleNode(xPath).InnerText;
+        }
+
+        /// <summary>
+        /// Read a xml node inner text
+        /// </summary>
+        /// <param name="node">The xml node</param>
+        /// <returns>The located xml node inner text</returns>
+        public String ReadNodeInnerText(XmlNode node)
+        {
+            return node.InnerText;
+        }
+
+        /// <summary>
         /// Write the xml root node
         /// </summary>
         /// <param name="rootName">The xml root node name</param>
@@ -325,6 +345,26 @@ namespace Lazy
         public void WriteNodeAttribute(XmlNode node, XmlAttribute attribute)
         {
             node.Attributes.Append(attribute);
+        }
+
+        /// <summary>
+        /// Write a xml node inner text
+        /// </summary>
+        /// <param name="xPath">The xPath of the xml node</param>
+        /// <param name="innerText">The xml node inner text</param>
+        public void WriteNodeInnerText(String xPath, String innerText)
+        {
+            this.xmlDocument.SelectSingleNode(xPath).InnerText = innerText;
+        }
+
+        /// <summary>
+        /// Write a xml node inner text
+        /// </summary>
+        /// <param name="node">The xml node</param>
+        /// <param name="innerText">The xml node inner text</param>
+        public void WriteNodeInnerText(XmlNode node, String innerText)
+        {
+            node.InnerText = innerText;
         }
 
         #endregion Methods
