@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0</Version>
     <Authors>Isaac Bezerra Saraiva</Authors>
     <Product>Lazy</Product>
     <Description>UnitTest Lazy Database Oracle</Description>
