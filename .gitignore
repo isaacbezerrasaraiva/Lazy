@@ -354,6 +354,4 @@ MigrationBackup/
 v1.0.0.0/Release/*.dll
 v1.0.0.0/Release/*.exe
 !v1.0.0.0/Release/[Bb]in/
-v1.0.0.0/Release/[Bb]in/*.dll
-!v1.0.0.0/Release/[Bb]in/netstandard2.0/
-v1.0.0.0/Release/[Bb]in/netstandard2.0/*.dll
+v1.0.0.0/Release/[Bb]in/*
