@@ -3,46 +3,48 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy", "Lazy\Lazy\Lazy.csproj", "{610A346D-1600-4DD3-B486-E0F225CDB360}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy", "Lazy\Lazy\Lazy.csproj", "{610A346D-1600-4DD3-B486-E0F225CDB360}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lazy", "Lazy", "{99CB734D-B877-474F-A70B-B68ECE93C19C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database", "Lazy.Database\Lazy.Database\Lazy.Database.csproj", "{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database", "Lazy.Database\Lazy.Database\Lazy.Database.csproj", "{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lazy.Database", "Lazy.Database", "{9DBD9093-00C7-4951-B8B4-4F7B804C6D7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database.Db2", "Lazy.Database\Lazy.Database.Db2\Lazy.Database.Db2.csproj", "{0E63705F-8B17-43D8-BBA1-67191FEF0A36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.Db2", "Lazy.Database\Lazy.Database.Db2\Lazy.Database.Db2.csproj", "{0E63705F-8B17-43D8-BBA1-67191FEF0A36}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 		{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D} = {BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database.MySql", "Lazy.Database\Lazy.Database.MySql\Lazy.Database.MySql.csproj", "{8F98B49D-DD11-4F8B-AF20-D494917DF010}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.MySql", "Lazy.Database\Lazy.Database.MySql\Lazy.Database.MySql.csproj", "{8F98B49D-DD11-4F8B-AF20-D494917DF010}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 		{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D} = {BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database.Oracle", "Lazy.Database\Lazy.Database.Oracle\Lazy.Database.Oracle.csproj", "{0F76B566-B5DF-44AD-8C8D-3B0C101F48B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.Oracle", "Lazy.Database\Lazy.Database.Oracle\Lazy.Database.Oracle.csproj", "{0F76B566-B5DF-44AD-8C8D-3B0C101F48B3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 		{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D} = {BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database.Postgre", "Lazy.Database\Lazy.Database.Postgre\Lazy.Database.Postgre.csproj", "{2A42C719-239C-4266-A6BA-9D6D3A904868}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.Postgre", "Lazy.Database\Lazy.Database.Postgre\Lazy.Database.Postgre.csproj", "{2A42C719-239C-4266-A6BA-9D6D3A904868}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 		{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D} = {BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lazy.Database.SqlServer", "Lazy.Database\Lazy.Database.SqlServer\Lazy.Database.SqlServer.csproj", "{E10FDA27-8D7F-4CF9-9346-F01E8A319342}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.SqlServer", "Lazy.Database\Lazy.Database.SqlServer\Lazy.Database.SqlServer.csproj", "{E10FDA27-8D7F-4CF9-9346-F01E8A319342}"
 	ProjectSection(ProjectDependencies) = postProject
 		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
 		{BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D} = {BAC74D7A-9F48-4ACE-A2AB-F64EFD83E51D}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Json", "Lazy\Lazy.Json\Lazy.Json.csproj", "{C36F5D52-D178-4440-A427-74D34819C964}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +80,10 @@ Global
 		{E10FDA27-8D7F-4CF9-9346-F01E8A319342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E10FDA27-8D7F-4CF9-9346-F01E8A319342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E10FDA27-8D7F-4CF9-9346-F01E8A319342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C36F5D52-D178-4440-A427-74D34819C964}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C36F5D52-D178-4440-A427-74D34819C964}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C36F5D52-D178-4440-A427-74D34819C964}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C36F5D52-D178-4440-A427-74D34819C964}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{0F76B566-B5DF-44AD-8C8D-3B0C101F48B3} = {9DBD9093-00C7-4951-B8B4-4F7B804C6D7E}
 		{2A42C719-239C-4266-A6BA-9D6D3A904868} = {9DBD9093-00C7-4951-B8B4-4F7B804C6D7E}
 		{E10FDA27-8D7F-4CF9-9346-F01E8A319342} = {9DBD9093-00C7-4951-B8B4-4F7B804C6D7E}
+		{C36F5D52-D178-4440-A427-74D34819C964} = {99CB734D-B877-474F-A70B-B68ECE93C19C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F164C75-0790-4D53-8417-0E4143BE8AE7}

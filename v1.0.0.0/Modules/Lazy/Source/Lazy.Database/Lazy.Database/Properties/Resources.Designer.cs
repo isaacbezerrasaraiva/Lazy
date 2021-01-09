@@ -241,6 +241,15 @@ namespace Lazy.Database.Properties {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a The return fields cannot be null or zero lenght!.
+        /// </summary>
+        public static string LazyDatabaseExceptionReturnFieldsNullOrZeroLenght {
+            get {
+                return ResourceManager.GetString("LazyDatabaseExceptionReturnFieldsNullOrZeroLenght", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a The sql sentence cannot be null or empty!.
         /// </summary>
         public static string LazyDatabaseExceptionSqlNullOrEmpty {

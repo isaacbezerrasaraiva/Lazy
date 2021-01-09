@@ -161,6 +161,117 @@ namespace Lazy.Database
         public abstract DataTable QueryProcedure(String procedureName, String tableName, Object[] values, String[] parameters);
 
         /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, DataRow dataRow);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, DataRow dataRow, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, DataRow dataRow, String[] returnFields);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, DataRow dataRow, DataRowState dataRowState, String[] returnFields);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, String[] keyFields, Object[] keyValues);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable Select(String tableName, String[] keyFields, Object[] keyValues, String[] returnFields);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, DataTable dataTable);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, DataTable dataTable, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, DataTable dataTable, String[] returnFields);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, DataTable dataTable, DataRowState dataRowState, String[] returnFields);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, String[] keyFields, List<Object[]> keyValuesList);
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public abstract DataTable SelectAll(String tableName, String[] keyFields, List<Object[]> keyValuesList, String[] returnFields);
+
+        /// <summary>
         /// Execute a sql insert sentence
         /// </summary>
         /// <param name="tableName">The table name to insert the record</param>
@@ -211,6 +322,62 @@ namespace Lazy.Database
         /// <param name="valuesList">The list of respective fields values to be inserted on the table</param>
         /// <returns>The number of affected records</returns>
         public abstract Int32 InsertAll(String tableName, String[] fields, List<Object[]> valuesList);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Indate(String tableName, DataRow dataRow);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Indate(String tableName, DataRow dataRow, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
+        /// <param name="nonKeyValues">The respective non key fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Indate(String tableName, String[] nonKeyFields, Object[] nonKeyValues, String[] keyFields, Object[] keyValues);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 IndateAll(String tableName, DataTable dataTable);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 IndateAll(String tableName, DataTable dataTable, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
+        /// <param name="nonKeyValuesList">The list of respective non key fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 IndateAll(String tableName, String[] nonKeyFields, List<Object[]> nonKeyValuesList, String[] keyFields, List<Object[]> keyValuesList);
 
         /// <summary>
         /// Execute a sql update sentence
@@ -269,6 +436,62 @@ namespace Lazy.Database
         public abstract Int32 UpdateAll(String tableName, String[] fields, List<Object[]> valuesList, String[] keyFields, List<Object[]> keyValuesList);
 
         /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Upsert(String tableName, DataRow dataRow);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Upsert(String tableName, DataRow dataRow, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="fields">The table fields to be included on the update or insert sentence</param>
+        /// <param name="values">The respective fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 Upsert(String tableName, String[] fields, Object[] values, String[] keyFields, Object[] keyValues);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 UpsertAll(String tableName, DataTable dataTable);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 UpsertAll(String tableName, DataTable dataTable, DataRowState dataRowState);
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="fields">The table fields to be included on the update or insert sentence</param>
+        /// <param name="valuesList">The list of respective fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public abstract Int32 UpsertAll(String tableName, String[] fields, List<Object[]> valuesList, String[] keyFields, List<Object[]> keyValuesList);
+
+        /// <summary>
         /// Execute a sql delete sentence
         /// </summary>
         /// <param name="tableName">The table name to delete the record</param>
@@ -319,62 +542,6 @@ namespace Lazy.Database
         /// <param name="keyValuesList">The list of respective key fields values</param>
         /// <returns>The number of affected records</returns>
         public abstract Int32 DeleteAll(String tableName, String[] keyFields, List<Object[]> keyValuesList);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="dataRow">The datarow to be updated or inserted</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 Upsert(String tableName, DataRow dataRow);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="dataRow">The datarow to be updated or inserted</param>
-        /// <param name="dataRowState">The datarow state to be considered</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 Upsert(String tableName, DataRow dataRow, DataRowState dataRowState);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
-        /// <param name="nonKeyValues">The respective non key fields values to be updated or inserted on the table</param>
-        /// <param name="keyFields">The table key fields</param>
-        /// <param name="keyValues">The respective key fields values</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 Upsert(String tableName, String[] nonKeyFields, Object[] nonKeyValues, String[] keyFields, Object[] keyValues);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 UpsertAll(String tableName, DataTable dataTable);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
-        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 UpsertAll(String tableName, DataTable dataTable, DataRowState dataRowState);
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
-        /// <param name="nonKeyValuesList">The list of respective non key fields values to be updated or inserted on the table</param>
-        /// <param name="keyFields">The table key fields</param>
-        /// <param name="keyValuesList">The list of respective key fields values</param>
-        /// <returns>The number of affected records</returns>
-        public abstract Int32 UpsertAll(String tableName, String[] nonKeyFields, List<Object[]> nonKeyValuesList, String[] keyFields, List<Object[]> keyValuesList);
 
         /// <summary>
         /// Convert a value to a database string format

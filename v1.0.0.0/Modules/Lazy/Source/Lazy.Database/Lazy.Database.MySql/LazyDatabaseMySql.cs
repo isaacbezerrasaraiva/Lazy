@@ -551,9 +551,355 @@ namespace Lazy.Database.MySql
                     this.mySqlCommand.Parameters.Add(mySqlParameter);
                 }
             }
-            
+
             this.mySqlCommand.CommandText = procedureName;
             this.mySqlCommand.CommandType = CommandType.StoredProcedure;
+            this.mySqlCommand.Transaction = this.mySqlTransaction;
+
+            DataTable dataTable = new DataTable(tableName);
+            this.mySqlDataAdapter.SelectCommand = this.mySqlCommand;
+            this.mySqlDataAdapter.Fill(dataTable);
+
+            return dataTable;
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, DataRow dataRow)
+        {
+            return Select(tableName, dataRow, DataRowState.Unchanged);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, DataRow dataRow, DataRowState dataRowState)
+        {
+            return Select(tableName, dataRow, dataRowState, new String[] { "*" });
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, DataRow dataRow, String[] returnFields)
+        {
+            return Select(tableName, dataRow, DataRowState.Unchanged, returnFields);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataRow">The datarow witch contains the key values</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, DataRow dataRow, DataRowState dataRowState, String[] returnFields)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataRow == null || dataRow.Table.Columns.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataRowNullOrColumnZeroLenght);
+
+            if (dataRow.Table.PrimaryKey == null || dataRow.Table.PrimaryKey.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            if (returnFields == null || returnFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionReturnFieldsNullOrZeroLenght);
+
+            #endregion Validations
+
+            String[] keyFields = null;
+            Object[] keyValues = null;
+
+            if (dataRowState.HasFlag(dataRow.RowState) == true)
+            {
+                Int32 columnIndex = 0;
+
+                keyFields = new String[dataRow.Table.PrimaryKey.Length];
+                keyValues = new Object[dataRow.Table.PrimaryKey.Length];
+                foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
+                {
+                    keyFields[columnIndex] = dataColumn.ColumnName;
+                    keyValues[columnIndex] = (dataRow.RowState == DataRowState.Modified || dataRow.RowState == DataRowState.Deleted) ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return Select(tableName, keyFields, keyValues, returnFields);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, String[] keyFields, Object[] keyValues)
+        {
+            return Select(tableName, keyFields, keyValues, new String[] { "*" });
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable Select(String tableName, String[] keyFields, Object[] keyValues, String[] returnFields)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValues == null || keyValues.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesNullOrZeroLenght);
+
+            if (keyFields.Length != keyValues.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
+
+            if (returnFields == null || returnFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionReturnFieldsNullOrZeroLenght);
+
+            #endregion Validations
+
+            this.mySqlCommand.Parameters.Clear();
+
+            String whereKeyFieldString = String.Empty;
+
+            foreach (String keyField in keyFields)
+                whereKeyFieldString += keyField + " = @" + keyField + " and ";
+            whereKeyFieldString = whereKeyFieldString.Remove(whereKeyFieldString.Length - 5, 5); // Remove last " and "
+
+            for (int i = 0; i < keyValues.Length; i++)
+            {
+                MySqlDbType dbType = (MySqlDbType)ConvertToDatabaseType(keyValues[i].GetType());
+                MySqlParameter mySqlParameter = new MySqlParameter(keyFields[i], dbType);
+                mySqlParameter.Value = keyValues[i];
+
+                this.mySqlCommand.Parameters.Add(mySqlParameter);
+            }
+
+            String returnFieldString = String.Empty;
+
+            foreach (String returnField in returnFields)
+                returnFieldString += returnField + ",";
+            returnFieldString = returnFieldString.Remove(returnFieldString.Length - 1, 1); // Remove last " , "
+
+            String sql = "select " + returnFieldString + " from " + tableName + " where " + whereKeyFieldString;
+
+            this.mySqlCommand.CommandText = sql;
+            this.mySqlCommand.CommandType = CommandType.Text;
+            this.mySqlCommand.Transaction = this.mySqlTransaction;
+
+            DataTable dataTable = new DataTable(tableName);
+            this.mySqlDataAdapter.SelectCommand = this.mySqlCommand;
+            this.mySqlDataAdapter.Fill(dataTable);
+
+            return dataTable;
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, DataTable dataTable)
+        {
+            return SelectAll(tableName, dataTable, DataRowState.Unchanged);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, DataTable dataTable, DataRowState dataRowState)
+        {
+            return SelectAll(tableName, dataTable, dataRowState, new String[] { "*" });
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, DataTable dataTable, String[] returnFields)
+        {
+            return SelectAll(tableName, dataTable, DataRowState.Unchanged, returnFields);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="dataTable">The datatable containg the records to be selected</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, DataTable dataTable, DataRowState dataRowState, String[] returnFields)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableNullOrRowsZeroLenght);
+
+            if (dataTable.Columns.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableRowsColumnsZeroLenght);
+
+            if (dataTable.PrimaryKey == null || dataTable.PrimaryKey.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            if (returnFields == null || returnFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionReturnFieldsNullOrZeroLenght);
+
+            #endregion Validations
+
+            Int32 columnIndex = 0;
+
+            String[] keyFields = new String[dataTable.PrimaryKey.Length];
+            foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+            {
+                keyFields[columnIndex] = dataColumn.ColumnName;
+                columnIndex++;
+            }
+
+            List<Object[]> keyValuesList = new List<Object[]>();
+            foreach (DataRow dataRow in dataTable.Rows)
+            {
+                if (dataRowState.HasFlag(dataRow.RowState) == false)
+                    continue;
+
+                columnIndex = 0;
+                keyValuesList.Add(new Object[dataTable.PrimaryKey.Length]);
+                foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+                {
+                    keyValuesList[keyValuesList.Count - 1][columnIndex] = (dataRow.RowState == DataRowState.Modified || dataRow.RowState == DataRowState.Deleted) ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return SelectAll(tableName, keyFields, keyValuesList, returnFields);
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, String[] keyFields, List<Object[]> keyValuesList)
+        {
+            return SelectAll(tableName, keyFields, keyValuesList, new String[] { "*" });
+        }
+
+        /// <summary>
+        /// Execute a sql select sentence
+        /// </summary>
+        /// <param name="tableName">The table name to select the record</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <param name="returnFields">The fields to be returned by the select sentence</param>
+        /// <returns>The datatable with selected records</returns>
+        public override DataTable SelectAll(String tableName, String[] keyFields, List<Object[]> keyValuesList, String[] returnFields)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValuesList == null || keyValuesList.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesListNullOrZeroLenght);
+
+            if (returnFields == null || returnFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionReturnFieldsNullOrZeroLenght);
+
+            #endregion Validations
+
+            this.mySqlCommand.Parameters.Clear();
+
+            String keyFieldString = String.Empty;
+            String inKeyValueString = String.Empty;
+
+            foreach (String keyField in keyFields)
+                keyFieldString += keyField + ",";
+            keyFieldString = keyFieldString.Remove(keyFieldString.Length - 1, 1); // Remove last ","
+
+            for (int listIndex = 0; listIndex < keyValuesList.Count; listIndex++)
+            {
+                #region Validations
+
+                if (keyFields.Length != keyValuesList[listIndex].Length)
+                    throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
+
+                #endregion Validations
+
+                // Generate in clausule
+                inKeyValueString += "(";
+                foreach (Object value in keyValuesList[listIndex])
+                    inKeyValueString += ConvertToDatabaseStringFormat(value) + ",";
+                inKeyValueString = inKeyValueString.Remove(inKeyValueString.Length - 1, 1); // Remove last ","
+                inKeyValueString += "),";
+            }
+            inKeyValueString = inKeyValueString.Remove(inKeyValueString.Length - 1, 1); // Remove last "),"
+
+            String returnFieldString = String.Empty;
+
+            foreach (String returnField in returnFields)
+                returnFieldString += returnField + ",";
+            returnFieldString = returnFieldString.Remove(returnFieldString.Length - 1, 1); // Remove last " , "
+
+            String sql = "select " + returnFieldString + " from " + tableName + " where (" + keyFieldString + ") in (" + inKeyValueString + ")";
+
+            this.mySqlCommand.CommandText = sql;
+            this.mySqlCommand.CommandType = CommandType.Text;
             this.mySqlCommand.Transaction = this.mySqlTransaction;
 
             DataTable dataTable = new DataTable(tableName);
@@ -795,6 +1141,329 @@ namespace Lazy.Database.MySql
             this.mySqlCommand.Transaction = this.mySqlTransaction;
 
             return this.mySqlCommand.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Indate(String tableName, DataRow dataRow)
+        {
+            return Indate(tableName, dataRow, DataRowState.Added);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Indate(String tableName, DataRow dataRow, DataRowState dataRowState)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataRow == null || dataRow.Table.Columns.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataRowNullOrColumnZeroLenght);
+
+            if (dataRow.Table.PrimaryKey == null || dataRow.Table.PrimaryKey.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            #endregion Validations
+
+            String[] nonKeyFields = null;
+            Object[] nonKeyValues = null;
+            String[] keyFields = null;
+            Object[] keyValues = null;
+
+            if (dataRowState.HasFlag(dataRow.RowState) == true)
+            {
+                Int32 columnIndex = 0;
+
+                nonKeyFields = new String[dataRow.Table.Columns.Count - dataRow.Table.PrimaryKey.Length];
+                nonKeyValues = new Object[dataRow.Table.Columns.Count - dataRow.Table.PrimaryKey.Length];
+                foreach (DataColumn dataColumn in dataRow.Table.Columns)
+                {
+                    Int32 pkIndex = 0;
+                    for (pkIndex = 0; pkIndex < dataRow.Table.PrimaryKey.Length; pkIndex++)
+                    {
+                        if (dataRow.Table.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
+                            break;
+                    }
+
+                    if (pkIndex == dataRow.Table.PrimaryKey.Length)
+                    {
+                        nonKeyFields[columnIndex] = dataColumn.ColumnName;
+                        nonKeyValues[columnIndex] = dataRow[dataColumn];
+                        columnIndex++;
+                    }
+                }
+
+                columnIndex = 0;
+                keyFields = new String[dataRow.Table.PrimaryKey.Length];
+                keyValues = new Object[dataRow.Table.PrimaryKey.Length];
+                foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
+                {
+                    keyFields[columnIndex] = dataColumn.ColumnName;
+                    keyValues[columnIndex] = dataRow.RowState == DataRowState.Modified ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return Indate(tableName, nonKeyFields, nonKeyValues, keyFields, keyValues);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
+        /// <param name="nonKeyValues">The respective non key fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Indate(String tableName, String[] nonKeyFields, Object[] nonKeyValues, String[] keyFields, Object[] keyValues)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (nonKeyFields == null || nonKeyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght);
+
+            if (nonKeyValues == null || nonKeyValues.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesNullOrZeroLenght);
+
+            if (nonKeyFields.Length != nonKeyValues.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsAndNonKeyValuesNotMatch);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValues == null || keyValues.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesNullOrZeroLenght);
+
+            if (keyFields.Length != keyValues.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
+
+            #endregion Validations
+
+            DataTable dataTable = Select(tableName, keyFields, keyValues, new String[] { "1" });
+
+            if (dataTable.Rows.Count == 0)
+            {
+                String[] fields = new String[keyFields.Length + nonKeyFields.Length];
+                keyFields.CopyTo(fields, 0);
+                nonKeyFields.CopyTo(fields, keyFields.Length);
+
+                String[] values = new String[keyValues.Length + nonKeyValues.Length];
+                keyValues.CopyTo(values, 0);
+                nonKeyValues.CopyTo(values, keyValues.Length);
+
+                return Insert(tableName, fields, values);
+            }
+            else
+            {
+                return Update(tableName, nonKeyFields, nonKeyValues, keyFields, keyValues);
+            }
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 IndateAll(String tableName, DataTable dataTable)
+        {
+            return IndateAll(tableName, dataTable, DataRowState.Added);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 IndateAll(String tableName, DataTable dataTable, DataRowState dataRowState)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableNullOrRowsZeroLenght);
+
+            if (dataTable.Columns.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableRowsColumnsZeroLenght);
+
+            if (dataTable.PrimaryKey == null || dataTable.PrimaryKey.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            #endregion Validations
+
+            Int32 columnIndex = 0;
+
+            String[] nonKeyFields = new String[dataTable.Columns.Count - dataTable.PrimaryKey.Length];
+            foreach (DataColumn dataColumn in dataTable.Columns)
+            {
+                Int32 pkIndex = 0;
+                for (pkIndex = 0; pkIndex < dataTable.PrimaryKey.Length; pkIndex++)
+                {
+                    if (dataTable.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
+                        break;
+                }
+
+                if (pkIndex == dataTable.PrimaryKey.Length)
+                {
+                    nonKeyFields[columnIndex] = dataColumn.ColumnName;
+                    columnIndex++;
+                }
+            }
+
+            columnIndex = 0;
+            String[] keyFields = new String[dataTable.PrimaryKey.Length];
+            foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+            {
+                keyFields[columnIndex] = dataColumn.ColumnName;
+                columnIndex++;
+            }
+
+            List<Object[]> nonKeyValuesList = new List<Object[]>();
+            List<Object[]> keyValuesList = new List<Object[]>();
+            foreach (DataRow dataRow in dataTable.Rows)
+            {
+                if (dataRowState.HasFlag(dataRow.RowState) == false)
+                    continue;
+
+                columnIndex = 0;
+                nonKeyValuesList.Add(new Object[dataTable.Columns.Count - dataTable.PrimaryKey.Length]);
+                foreach (DataColumn dataColumn in dataTable.Columns)
+                {
+                    Int32 pkIndex = 0;
+                    for (pkIndex = 0; pkIndex < dataTable.PrimaryKey.Length; pkIndex++)
+                    {
+                        if (dataTable.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
+                            break;
+                    }
+
+                    if (pkIndex == dataTable.PrimaryKey.Length)
+                    {
+                        nonKeyValuesList[nonKeyValuesList.Count - 1][columnIndex] = dataRow[dataColumn];
+                        columnIndex++;
+                    }
+                }
+
+                columnIndex = 0;
+                keyValuesList.Add(new Object[dataTable.PrimaryKey.Length]);
+                foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+                {
+                    keyValuesList[keyValuesList.Count - 1][columnIndex] = dataRow.RowState == DataRowState.Modified ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return IndateAll(tableName, nonKeyFields, nonKeyValuesList, keyFields, keyValuesList);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
+        /// <param name="nonKeyValuesList">The list of respective non key fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 IndateAll(String tableName, String[] nonKeyFields, List<Object[]> nonKeyValuesList, String[] keyFields, List<Object[]> keyValuesList)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (nonKeyFields == null || nonKeyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght);
+
+            if (nonKeyValuesList == null || nonKeyValuesList.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesListNullOrZeroLenght);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValuesList == null || keyValuesList.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesListNullOrZeroLenght);
+
+            if (nonKeyValuesList.Count != keyValuesList.Count)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesListAndKeyValueListNotMatch);
+
+            #endregion Validations
+
+            String filterString = String.Empty;
+            for (int i = 0; i < keyFields.Length; i++)
+                filterString += keyFields[i] + " = '{" + i + "}' and ";
+            filterString = filterString.Remove(filterString.Length - 5, 5); // Remove last " and "
+
+            String[] fields = new String[keyFields.Length + nonKeyFields.Length];
+            keyFields.CopyTo(fields, 0);
+            nonKeyFields.CopyTo(fields, keyFields.Length);
+
+            DataTable dataTable = SelectAll(tableName, keyFields, keyValuesList, fields);
+
+            List<Object[]> valuesListInsert = new List<Object[]>();
+            List<Object[]> valuesListUpdate = new List<Object[]>();
+            List<Object[]> keyValuesListUpdate = new List<Object[]>();
+
+            for (int listIndex = 0; listIndex < keyValuesList.Count; listIndex++)
+            {
+                String filter = String.Format(filterString, keyValuesList[listIndex]);
+                DataRow[] dataRow = dataTable.Select(filter);
+
+                if (dataRow.Length > 0)
+                {
+                    valuesListUpdate.Add(new Object[keyFields.Length + nonKeyFields.Length]);
+                    keyValuesList[listIndex].CopyTo(valuesListUpdate[valuesListUpdate.Count - 1], 0);
+                    nonKeyValuesList[listIndex].CopyTo(valuesListUpdate[valuesListUpdate.Count - 1], keyFields.Length);
+
+                    keyValuesListUpdate.Add(keyValuesList[listIndex]);
+                }
+                else
+                {
+                    valuesListInsert.Add(new Object[keyFields.Length + nonKeyFields.Length]);
+                    keyValuesList[listIndex].CopyTo(valuesListInsert[valuesListInsert.Count - 1], 0);
+                    nonKeyValuesList[listIndex].CopyTo(valuesListInsert[valuesListInsert.Count - 1], keyFields.Length);
+                }
+            }
+
+            Int32 rowsAffected = 0;
+
+            if (valuesListInsert.Count > 0)
+                rowsAffected += InsertAll(tableName, fields, valuesListInsert);
+
+            if (valuesListUpdate.Count > 0)
+                rowsAffected += UpdateAll(tableName, fields, valuesListUpdate, keyFields, keyValuesListUpdate);
+
+            return rowsAffected;
         }
 
         /// <summary>
@@ -1130,6 +1799,282 @@ namespace Lazy.Database.MySql
         }
 
         /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Upsert(String tableName, DataRow dataRow)
+        {
+            return Upsert(tableName, dataRow, DataRowState.Modified);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="dataRow">The datarow to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Upsert(String tableName, DataRow dataRow, DataRowState dataRowState)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataRow == null || dataRow.Table.Columns.Count == 0)
+                throw new Exception(Properties.Resources.LazyDatabaseExceptionDataRowNullOrColumnZeroLenght);
+
+            if (dataRow.Table.PrimaryKey == null || dataRow.Table.PrimaryKey.Length == 0)
+                throw new Exception(Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            #endregion Validations
+
+            String[] fields = null;
+            Object[] values = null;
+            String[] keyFields = null;
+            Object[] keyValues = null;
+
+            if (dataRowState.HasFlag(dataRow.RowState) == true)
+            {
+                Int32 columnIndex = 0;
+
+                fields = new String[dataRow.Table.Columns.Count];
+                values = new Object[dataRow.Table.Columns.Count];
+                foreach (DataColumn dataColumn in dataRow.Table.Columns)
+                {
+                    fields[columnIndex] = dataColumn.ColumnName;
+                    values[columnIndex] = dataRow[dataColumn];
+                    columnIndex++;
+                }
+
+                columnIndex = 0;
+                keyFields = new String[dataRow.Table.PrimaryKey.Length];
+                keyValues = new Object[dataRow.Table.PrimaryKey.Length];
+                foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
+                {
+                    keyFields[columnIndex] = dataColumn.ColumnName;
+                    keyValues[columnIndex] = (dataRow.RowState == DataRowState.Modified || dataRow.RowState == DataRowState.Deleted) ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return Upsert(tableName, fields, values, keyFields, keyValues);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence depending on record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the record</param>
+        /// <param name="fields">The table fields to be included on the update or insert sentence</param>
+        /// <param name="values">The respective fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValues">The respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 Upsert(String tableName, String[] fields, Object[] values, String[] keyFields, Object[] keyValues)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (fields == null || fields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionFieldsNullOrZeroLenght);
+
+            if (values == null || values.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionValuesNullOrZeroLenght);
+
+            if (fields.Length != values.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionFieldsAndValuesNotMatch);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValues == null || keyValues.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesNullOrZeroLenght);
+
+            if (keyFields.Length != keyValues.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
+
+            #endregion Validations
+
+            DataTable dataTable = Select(tableName, keyFields, keyValues, new String[] { "1" });
+
+            if (dataTable.Rows.Count == 1)
+            {
+                return Update(tableName, fields, values, keyFields, keyValues);
+            }
+            else
+            {
+                return Insert(tableName, fields, values);
+            }
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 UpsertAll(String tableName, DataTable dataTable)
+        {
+            return UpsertAll(tableName, dataTable, DataRowState.Modified);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
+        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 UpsertAll(String tableName, DataTable dataTable, DataRowState dataRowState)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableNullOrRowsZeroLenght);
+
+            if (dataTable.Columns.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableRowsColumnsZeroLenght);
+
+            if (dataTable.PrimaryKey == null || dataTable.PrimaryKey.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
+
+            #endregion Validations
+
+            Int32 columnIndex = 0;
+
+            String[] fields = new String[dataTable.Columns.Count];
+            foreach (DataColumn dataColumn in dataTable.Columns)
+            {
+                fields[columnIndex] = dataColumn.ColumnName;
+                columnIndex++;
+            }
+
+            columnIndex = 0;
+            String[] keyFields = new String[dataTable.PrimaryKey.Length];
+            foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+            {
+                keyFields[columnIndex] = dataColumn.ColumnName;
+                columnIndex++;
+            }
+
+            List<Object[]> valuesList = new List<Object[]>();
+            List<Object[]> keyValuesList = new List<Object[]>();
+            foreach (DataRow dataRow in dataTable.Rows)
+            {
+                if (dataRowState.HasFlag(dataRow.RowState) == false)
+                    continue;
+
+                columnIndex = 0;
+                valuesList.Add(new Object[dataTable.Columns.Count]);
+                foreach (DataColumn dataColumn in dataTable.Columns)
+                {
+                    valuesList[valuesList.Count - 1][columnIndex] = dataRow[dataColumn];
+                    columnIndex++;
+                }
+
+                columnIndex = 0;
+                keyValuesList.Add(new Object[dataTable.PrimaryKey.Length]);
+                foreach (DataColumn dataColumn in dataTable.PrimaryKey)
+                {
+                    keyValuesList[keyValuesList.Count - 1][columnIndex] = (dataRow.RowState == DataRowState.Modified || dataRow.RowState == DataRowState.Deleted) ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
+                    columnIndex++;
+                }
+            }
+
+            return UpsertAll(tableName, fields, valuesList, keyFields, keyValuesList);
+        }
+
+        /// <summary>
+        /// Execute a sql update or insert sentence for many records depending on each record existence
+        /// </summary>
+        /// <param name="tableName">The table name to update or insert the records</param>
+        /// <param name="fields">The table fields to be included on the update or insert sentence</param>
+        /// <param name="valuesList">The list of respective fields values to be updated or inserted on the table</param>
+        /// <param name="keyFields">The table key fields</param>
+        /// <param name="keyValuesList">The list of respective key fields values</param>
+        /// <returns>The number of affected records</returns>
+        public override Int32 UpsertAll(String tableName, String[] fields, List<Object[]> valuesList, String[] keyFields, List<Object[]> keyValuesList)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (fields == null || fields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionFieldsNullOrZeroLenght);
+
+            if (valuesList == null || valuesList.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionValuesListNullOrZeroLenght);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValuesList == null || keyValuesList.Count == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesListNullOrZeroLenght);
+
+            if (valuesList.Count != keyValuesList.Count)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionValuesListAndKeyValueListNotMatch);
+
+            #endregion Validations
+            
+            String filterString = String.Empty;
+            for (int i = 0; i < keyFields.Length; i++)
+                filterString += keyFields[i] + " = '{" + i + "}' and ";
+            filterString = filterString.Remove(filterString.Length - 5, 5); // Remove last " and "
+
+            DataTable dataTable = SelectAll(tableName, keyFields, keyValuesList, fields);
+
+            List<Object[]> valuesListInsert = new List<Object[]>();
+            List<Object[]> valuesListUpdate = new List<Object[]>();
+            List<Object[]> keyValuesListUpdate = new List<Object[]>();
+
+            for (int listIndex = 0; listIndex < keyValuesList.Count; listIndex++)
+            {
+                String filter = String.Format(filterString, keyValuesList[listIndex]);
+                DataRow[] dataRow = dataTable.Select(filter);
+
+                if (dataRow.Length > 0)
+                {
+                    valuesListUpdate.Add(valuesList[listIndex]);
+                    keyValuesListUpdate.Add(keyValuesList[listIndex]);
+                }
+                else
+                {
+                    valuesListInsert.Add(valuesList[listIndex]);
+                }
+            }
+
+            Int32 rowsAffected = 0;
+
+            if (valuesListUpdate.Count > 0)
+                rowsAffected += UpdateAll(tableName, fields, valuesListUpdate, keyFields, keyValuesListUpdate);
+
+            if (valuesListInsert.Count > 0)
+                rowsAffected += InsertAll(tableName, fields, valuesListInsert);
+
+            return rowsAffected;
+        }
+
+        /// <summary>
         /// Execute a sql delete sentence
         /// </summary>
         /// <param name="tableName">The table name to delete the record</param>
@@ -1364,394 +2309,6 @@ namespace Lazy.Database.MySql
             this.mySqlCommand.Transaction = this.mySqlTransaction;
 
             return this.mySqlCommand.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="dataRow">The datarow to be updated or inserted</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 Upsert(String tableName, DataRow dataRow)
-        {
-            return Upsert(tableName, dataRow, (DataRowState.Added | DataRowState.Modified));
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="dataRow">The datarow to be updated or inserted</param>
-        /// <param name="dataRowState">The datarow state to be considered</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 Upsert(String tableName, DataRow dataRow, DataRowState dataRowState)
-        {
-            #region Validations
-
-            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
-
-            if (String.IsNullOrEmpty(tableName) == true)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
-
-            if (dataRow == null || dataRow.Table.Columns.Count == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataRowNullOrColumnZeroLenght);
-
-            if (dataRow.Table.PrimaryKey == null || dataRow.Table.PrimaryKey.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
-
-            #endregion Validations
-
-            String[] nonKeyFields = null;
-            Object[] nonKeyValues = null;
-            String[] keyFields = null;
-            Object[] keyValues = null;
-
-            if (dataRowState.HasFlag(dataRow.RowState) == true)
-            {
-                Int32 columnIndex = 0;
-
-                nonKeyFields = new String[dataRow.Table.Columns.Count - dataRow.Table.PrimaryKey.Length];
-                nonKeyValues = new Object[dataRow.Table.Columns.Count - dataRow.Table.PrimaryKey.Length];
-                foreach (DataColumn dataColumn in dataRow.Table.Columns)
-                {
-                    Int32 pkIndex = 0;
-                    for (pkIndex = 0; pkIndex < dataRow.Table.PrimaryKey.Length; pkIndex++)
-                    {
-                        if (dataRow.Table.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
-                            break;
-                    }
-
-                    if (pkIndex == dataRow.Table.PrimaryKey.Length)
-                    {
-                        nonKeyFields[columnIndex] = dataColumn.ColumnName;
-                        nonKeyValues[columnIndex] = dataRow[dataColumn];
-                        columnIndex++;
-                    }
-                }
-
-                columnIndex = 0;
-                keyFields = new String[dataRow.Table.PrimaryKey.Length];
-                keyValues = new Object[dataRow.Table.PrimaryKey.Length];
-                foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
-                {
-                    keyFields[columnIndex] = dataColumn.ColumnName;
-                    keyValues[columnIndex] = dataRow.RowState == DataRowState.Modified ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
-                    columnIndex++;
-                }
-            }
-
-            return Upsert(tableName, nonKeyFields, nonKeyValues, keyFields, keyValues);
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence depending on record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the record</param>
-        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
-        /// <param name="nonKeyValues">The respective non key fields values to be updated or inserted on the table</param>
-        /// <param name="keyFields">The table key fields</param>
-        /// <param name="keyValues">The respective key fields values</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 Upsert(String tableName, String[] nonKeyFields, Object[] nonKeyValues, String[] keyFields, Object[] keyValues)
-        {
-            #region Validations
-
-            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
-
-            if (String.IsNullOrEmpty(tableName) == true)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
-
-            if (nonKeyFields == null || nonKeyFields.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght);
-
-            if (nonKeyValues == null || nonKeyValues.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesNullOrZeroLenght);
-
-            if (nonKeyFields.Length != nonKeyValues.Length)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsAndNonKeyValuesNotMatch);
-
-            if (keyFields == null || keyFields.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
-
-            if (keyValues == null || keyValues.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesNullOrZeroLenght);
-
-            if (keyFields.Length != keyValues.Length)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
-
-            #endregion Validations
-
-            this.mySqlCommand.Parameters.Clear();
-
-            String fieldString = String.Empty;
-            String parameterString = String.Empty;
-            String updateString = String.Empty;
-
-            foreach (String keyField in keyFields)
-                fieldString += keyField + ", ";
-
-            foreach (String nonKeyfield in nonKeyFields)
-                fieldString += nonKeyfield + ", ";
-            fieldString = fieldString.Remove(fieldString.Length - 2, 2); // Remove last ", "
-
-            for (int i = 0; i < keyValues.Length; i++)
-            {
-                MySqlDbType dbType = (MySqlDbType)ConvertToDatabaseType(keyValues[i].GetType());
-                MySqlParameter mySqlParameter = new MySqlParameter(keyFields[i], dbType);
-                mySqlParameter.Value = keyValues[i];
-
-                this.mySqlCommand.Parameters.Add(mySqlParameter);
-
-                parameterString += "@" + keyFields[i] + ", ";
-            }
-
-            for (int i = 0; i < nonKeyValues.Length; i++)
-            {
-                MySqlDbType dbType = (MySqlDbType)ConvertToDatabaseType(nonKeyValues[i].GetType());
-                MySqlParameter mySqlParameter = new MySqlParameter(nonKeyFields[i], dbType);
-                mySqlParameter.Value = nonKeyValues[i];
-
-                this.mySqlCommand.Parameters.Add(mySqlParameter);
-
-                parameterString += "@" + nonKeyFields[i] + ", ";
-                updateString += tableName + "." + nonKeyFields[i] + " = @" + nonKeyFields[i] + ", ";
-            }
-            parameterString = parameterString.Remove(parameterString.Length - 2, 2); // Remove last ", "
-            updateString = updateString.Remove(updateString.Length - 2, 2); // Remove last ", "
-
-            String sql = "insert into " + tableName + " (" + fieldString + ") values (" + parameterString + ") on duplicate key update " + updateString;
-
-            this.mySqlCommand.CommandText = sql;
-            this.mySqlCommand.CommandType = CommandType.Text;
-            this.mySqlCommand.Transaction = this.mySqlTransaction;
-
-            return this.mySqlCommand.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 UpsertAll(String tableName, DataTable dataTable)
-        {
-            return UpsertAll(tableName, dataTable, (DataRowState.Added | DataRowState.Modified));
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="dataTable">The datatable containg the records to be updated or inserted</param>
-        /// <param name="dataRowState">The datarow state on datatable to be considered</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 UpsertAll(String tableName, DataTable dataTable, DataRowState dataRowState)
-        {
-            #region Validations
-
-            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
-
-            if (String.IsNullOrEmpty(tableName) == true)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
-
-            if (dataTable == null || dataTable.Rows.Count == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableNullOrRowsZeroLenght);
-
-            if (dataTable.Columns.Count == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTableRowsColumnsZeroLenght);
-
-            if (dataTable.PrimaryKey == null || dataTable.PrimaryKey.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght);
-
-            #endregion Validations
-
-            Int32 columnIndex = 0;
-
-            String[] nonKeyFields = new String[dataTable.Columns.Count - dataTable.PrimaryKey.Length];
-            foreach (DataColumn dataColumn in dataTable.Columns)
-            {
-                Int32 pkIndex = 0;
-                for (pkIndex = 0; pkIndex < dataTable.PrimaryKey.Length; pkIndex++)
-                {
-                    if (dataTable.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
-                        break;
-                }
-
-                if (pkIndex == dataTable.PrimaryKey.Length)
-                {
-                    nonKeyFields[columnIndex] = dataColumn.ColumnName;
-                    columnIndex++;
-                }
-            }
-
-            columnIndex = 0;
-            String[] keyFields = new String[dataTable.PrimaryKey.Length];
-            foreach (DataColumn dataColumn in dataTable.PrimaryKey)
-            {
-                keyFields[columnIndex] = dataColumn.ColumnName;
-                columnIndex++;
-            }
-
-            List<Object[]> nonKeyValuesList = new List<Object[]>();
-            List<Object[]> keyValuesList = new List<Object[]>();
-            foreach (DataRow dataRow in dataTable.Rows)
-            {
-                if (dataRowState.HasFlag(dataRow.RowState) == false)
-                    continue;
-
-                columnIndex = 0;
-                nonKeyValuesList.Add(new Object[dataTable.Columns.Count - dataTable.PrimaryKey.Length]);
-                foreach (DataColumn dataColumn in dataTable.Columns)
-                {
-                    Int32 pkIndex = 0;
-                    for (pkIndex = 0; pkIndex < dataTable.PrimaryKey.Length; pkIndex++)
-                    {
-                        if (dataTable.PrimaryKey[pkIndex].ColumnName == dataColumn.ColumnName)
-                            break;
-                    }
-
-                    if (pkIndex == dataTable.PrimaryKey.Length)
-                    {
-                        nonKeyValuesList[nonKeyValuesList.Count - 1][columnIndex] = dataRow[dataColumn];
-                        columnIndex++;
-                    }
-                }
-
-                columnIndex = 0;
-                keyValuesList.Add(new Object[dataTable.PrimaryKey.Length]);
-                foreach (DataColumn dataColumn in dataTable.PrimaryKey)
-                {
-                    keyValuesList[keyValuesList.Count - 1][columnIndex] = dataRow.RowState == DataRowState.Modified ? dataRow[dataColumn, DataRowVersion.Original] : dataRow[dataColumn];
-                    columnIndex++;
-                }
-            }
-
-            return UpsertAll(tableName, nonKeyFields, nonKeyValuesList, keyFields, keyValuesList);
-        }
-
-        /// <summary>
-        /// Execute a sql update or insert sentence for many records depending on each record existence
-        /// </summary>
-        /// <param name="tableName">The table name to update or insert the records</param>
-        /// <param name="nonKeyFields">The table non key fields to be included on the update or insert sentence</param>
-        /// <param name="nonKeyValuesList">The list of respective non key fields values to be updated or inserted on the table</param>
-        /// <param name="keyFields">The table key fields</param>
-        /// <param name="keyValuesList">The list of respective key fields values</param>
-        /// <returns>The number of affected records</returns>
-        public override Int32 UpsertAll(String tableName, String[] nonKeyFields, List<Object[]> nonKeyValuesList, String[] keyFields, List<Object[]> keyValuesList)
-        {
-            #region Validations
-
-            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
-
-            if (String.IsNullOrEmpty(tableName) == true)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
-
-            if (nonKeyFields == null || nonKeyFields.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght);
-
-            if (nonKeyValuesList == null || nonKeyValuesList.Count == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesListNullOrZeroLenght);
-
-            if (keyFields == null || keyFields.Length == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
-
-            if (keyValuesList == null || keyValuesList.Count == 0)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesListNullOrZeroLenght);
-
-            if (nonKeyValuesList.Count != keyValuesList.Count)
-                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyValuesListAndKeyValueListNotMatch);
-
-            #endregion Validations
-
-            this.mySqlCommand.Parameters.Clear();
-
-            String keyFieldString = String.Empty;
-            String inKeyValueString = String.Empty;
-            String filterString = String.Empty;
-
-            for (int i = 0; i < keyFields.Length; i++)
-            {
-                keyFieldString += keyFields[i] + ",";
-                filterString += keyFields[i] + " = '{" + i + "}' and ";
-            }
-            keyFieldString = keyFieldString.Remove(keyFieldString.Length - 1, 1); // Remove last ","
-            filterString = filterString.Remove(filterString.Length - 5, 5); // Remove last " and "
-
-            for (int listIndex = 0; listIndex < keyValuesList.Count; listIndex++)
-            {
-                #region Validations
-
-                if (keyFields.Length != keyValuesList[listIndex].Length)
-                    throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
-
-                if (nonKeyFields.Length != nonKeyValuesList[listIndex].Length)
-                    throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionNonKeyFieldsAndNonKeyValuesNotMatch);
-
-                #endregion Validations
-
-                // Generate in clausule
-                inKeyValueString += "(";
-                foreach (Object value in keyValuesList[listIndex])
-                    inKeyValueString += ConvertToDatabaseStringFormat(value) + ",";
-                inKeyValueString = inKeyValueString.Remove(inKeyValueString.Length - 1, 1); // Remove last ","
-                inKeyValueString += "";
-            }
-            inKeyValueString = inKeyValueString.Remove(inKeyValueString.Length - 1, 1); // Remove last "),"
-
-            String sql = "select " + keyFieldString + " from " + tableName + " where (" + keyFieldString + ") in (" + inKeyValueString + ")";
-
-            this.mySqlCommand.CommandText = sql;
-            this.mySqlCommand.CommandType = CommandType.Text;
-            this.mySqlCommand.Transaction = this.mySqlTransaction;
-
-            DataTable dataTable = new DataTable(tableName);
-            this.mySqlDataAdapter.SelectCommand = this.mySqlCommand;
-            this.mySqlDataAdapter.Fill(dataTable);
-
-            String[] fields = new String[keyFields.Length + nonKeyFields.Length];
-            keyFields.CopyTo(fields, 0);
-            nonKeyFields.CopyTo(fields, keyFields.Length);
-
-            List<Object[]> valuesListInsert = new List<Object[]>();
-            List<Object[]> valuesListUpdate = new List<Object[]>();
-            List<Object[]> keyValuesListUpdate = new List<Object[]>();
-
-            for (int listIndex = 0; listIndex < keyValuesList.Count; listIndex++)
-            {
-                String filter = String.Format(filterString, keyValuesList[listIndex]);
-                DataRow[] dataRow = dataTable.Select(filter);
-
-                if (dataRow.Length > 0)
-                {
-                    valuesListUpdate.Add(new Object[keyFields.Length + nonKeyFields.Length]);
-                    keyValuesList[listIndex].CopyTo(valuesListUpdate[valuesListUpdate.Count - 1], 0);
-                    nonKeyValuesList[listIndex].CopyTo(valuesListUpdate[valuesListUpdate.Count - 1], keyFields.Length);
-
-                    keyValuesListUpdate.Add(keyValuesList[listIndex]);
-                }
-                else
-                {
-                    valuesListInsert.Add(new Object[keyFields.Length + nonKeyFields.Length]);
-                    keyValuesList[listIndex].CopyTo(valuesListInsert[valuesListInsert.Count - 1], 0);
-                    nonKeyValuesList[listIndex].CopyTo(valuesListInsert[valuesListInsert.Count - 1], keyFields.Length);
-                }
-            }
-
-            Int32 rowsAffected = 0;
-
-            if (valuesListUpdate.Count > 0)
-                rowsAffected += UpdateAll(tableName, fields, valuesListUpdate, keyFields, keyValuesListUpdate);
-
-            if (valuesListInsert.Count > 0)
-                rowsAffected += InsertAll(tableName, fields, valuesListInsert);
-
-            return rowsAffected;
         }
 
         /// <summary>

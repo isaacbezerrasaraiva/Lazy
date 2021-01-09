@@ -117,91 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LazyDatabaseExceptionConnectionAlreadyClosed" xml:space="preserve">
-    <value>The database connection is already closed!</value>
+  <data name="LazyJsonPropertyMissingOriginalKey" xml:space="preserve">
+    <value>OriginalKey property is missing!</value>
   </data>
-  <data name="LazyDatabaseExceptionConnectionAlreadyOpen" xml:space="preserve">
-    <value>The database connection is already open!</value>
+  <data name="LazyJsonPropertyMissingRowState" xml:space="preserve">
+    <value>RowState property is missing!</value>
   </data>
-  <data name="LazyDatabaseExceptionConnectionNotOpen" xml:space="preserve">
-    <value>The database connection is not open!</value>
-  </data>
-  <data name="LazyDatabaseExceptionConnectionStringNullOrEmpty" xml:space="preserve">
-    <value>The database connection string cannot be null or empty!</value>
-  </data>
-  <data name="LazyDatabaseExceptionDataRowNullOrColumnZeroLenght" xml:space="preserve">
-    <value>The datarow cannot be null and must have at least on column!</value>
-  </data>
-  <data name="LazyDatabaseExceptionDataTableNullOrRowsZeroLenght" xml:space="preserve">
-    <value>The datatable cannot be null and must have at least one row!</value>
-  </data>
-  <data name="LazyDatabaseExceptionDataTablePrimaryKeyNullOrZeroLenght" xml:space="preserve">
-    <value>The datatable must have at least one primary key column!</value>
-  </data>
-  <data name="LazyDatabaseExceptionDataTableRowsColumnsZeroLenght" xml:space="preserve">
-    <value>The datatable rows must have at least one column!</value>
-  </data>
-  <data name="LazyDatabaseExceptionFieldsAndValuesNotMatch" xml:space="preserve">
-    <value>The fields array and values array must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionFieldsNullOrZeroLenght" xml:space="preserve">
-    <value>The fields array cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch" xml:space="preserve">
-    <value>The key fields array and key values array must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionKeyFieldsNullOrZeroLenght" xml:space="preserve">
-    <value>The key fields array cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionKeyValuesListNullOrZeroLenght" xml:space="preserve">
-    <value>The key values array list cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionKeyValuesNullOrZeroLenght" xml:space="preserve">
-    <value>The key values array cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionNonKeyFieldsAndNonKeyValuesNotMatch" xml:space="preserve">
-    <value>The non key fields array and non key values array must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionNonKeyFieldsNullOrZeroLenght" xml:space="preserve">
-    <value>The non key fields array cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionNonKeyValuesListAndKeyValueListNotMatch" xml:space="preserve">
-    <value>The non key values array list and key values array list must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionNonKeyValuesListNullOrZeroLenght" xml:space="preserve">
-    <value>The non key values array list cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionNonKeyValuesNullOrZeroLenght" xml:space="preserve">
-    <value>The non key values array cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionProcedureNameNullOrEmpty" xml:space="preserve">
-    <value>The procedure name cannot be null or empty!</value>
-  </data>
-  <data name="LazyDatabaseExceptionReturnFieldsNullOrZeroLenght" xml:space="preserve">
-    <value>The return fields cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionSqlNullOrEmpty" xml:space="preserve">
-    <value>The sql sentence cannot be null or empty!</value>
-  </data>
-  <data name="LazyDatabaseExceptionTableNameNullOrEmpty" xml:space="preserve">
-    <value>The table name cannot be null or empty!</value>
-  </data>
-  <data name="LazyDatabaseExceptionTransactionAlreadyStarted" xml:space="preserve">
-    <value>The database transaction was already started!</value>
-  </data>
-  <data name="LazyDatabaseExceptionTransactionNotInitialized" xml:space="preserve">
-    <value>The database transaction was not initialized!</value>
-  </data>
-  <data name="LazyDatabaseExceptionValuesAndParametersNotMatch" xml:space="preserve">
-    <value>The values array and parameters array must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionValuesListAndKeyValueListNotMatch" xml:space="preserve">
-    <value>The values array list and key values array list must have the same number of elements!</value>
-  </data>
-  <data name="LazyDatabaseExceptionValuesListNullOrZeroLenght" xml:space="preserve">
-    <value>The values array list cannot be null or zero lenght!</value>
-  </data>
-  <data name="LazyDatabaseExceptionValuesNullOrZeroLenght" xml:space="preserve">
-    <value>The values array cannot be null or zero lenght!</value>
+  <data name="LazyJsonTokenUnexpected" xml:space="preserve">
+    <value>Unexpected json token when reading DataTable ({0})!</value>
   </data>
 </root>
