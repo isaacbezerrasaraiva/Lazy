@@ -22,7 +22,10 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PostBuildEvent>xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.Oracle\bin\Debug\netcoreapp3.1\Lazy.Database.Oracle.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Database.Oracle\1.0.0\lib\netcoreapp3.1\</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.Oracle\bin\Debug\netcoreapp3.1\Lazy.Database.Oracle.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Database.Oracle\1.0.0\lib\netcoreapp3.1\
+      xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.Oracle\bin\Debug\netcoreapp3.1\Lazy.Database.Oracle.dll %SystemDrive%%HomePath%\.nuget\Packages\lazy.database.oracle\1.0.0\lib\netcoreapp3.1\
+    </PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>

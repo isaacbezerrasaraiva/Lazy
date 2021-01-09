@@ -22,7 +22,10 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PostBuildEvent>xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.MySql\bin\Debug\netcoreapp3.1\Lazy.Database.MySql.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Database.MySql\1.0.0\lib\netcoreapp3.1\</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.MySql\bin\Debug\netcoreapp3.1\Lazy.Database.MySql.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Database.MySql\1.0.0\lib\netcoreapp3.1\
+      xcopy /y $(SolutionDir)Lazy.Database\Lazy.Database.MySql\bin\Debug\netcoreapp3.1\Lazy.Database.MySql.dll %SystemDrive%%HomePath%\.nuget\Packages\lazy.database.mysql\1.0.0\lib\netcoreapp3.1\
+    </PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>

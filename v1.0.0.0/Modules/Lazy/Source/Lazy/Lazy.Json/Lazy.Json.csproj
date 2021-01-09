@@ -42,7 +42,10 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PostBuildEvent>xcopy /y $(SolutionDir)Lazy\Lazy.Json\bin\Debug\netcoreapp3.1\Lazy.Json.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Json\1.0.0\lib\netcoreapp3.1\</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /y $(SolutionDir)Lazy\Lazy.Json\bin\Debug\netcoreapp3.1\Lazy.Json.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Json\1.0.0\lib\netcoreapp3.1\
+      xcopy /y $(SolutionDir)Lazy\Lazy.Json\bin\Debug\netcoreapp3.1\Lazy.Json.dll %SystemDrive%%HomePath%\.nuget\Packages\lazy.json\1.0.0\lib\netcoreapp3.1\
+    </PostBuildEvent>
   </PropertyGroup>
   
 </Project>

@@ -18,6 +18,27 @@ namespace Lazy
         public static class Local
         {
             /// <summary>
+            /// Create an object instance of the specified type
+            /// </summary>
+            /// <param name="type">The object type to create the instance</param>
+            /// <returns>The object instance</returns>
+            public static Object CreateInstance(Type type)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            /// <summary>
+            /// Create an object instance of the specified type
+            /// </summary>
+            /// <param name="type">The object type to create the instance</param>
+            /// <param name="parameters">The parameters of desired object constructor</param>
+            /// <returns>The object instance</returns>
+            public static Object CreateInstance(Type type, Object[] parameters)
+            {
+                return Activator.CreateInstance(type, parameters);
+            }
+
+            /// <summary>
             /// Create an object instance of the specified class located on specified assembly
             /// </summary>
             /// <param name="assemblyPath">The assembly path witch contains the desired class</param>

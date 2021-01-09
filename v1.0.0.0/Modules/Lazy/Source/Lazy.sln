@@ -45,6 +45,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Database.SqlServer", "
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lazy.Json", "Lazy\Lazy.Json\Lazy.Json.csproj", "{C36F5D52-D178-4440-A427-74D34819C964}"
+	ProjectSection(ProjectDependencies) = postProject
+		{610A346D-1600-4DD3-B486-E0F225CDB360} = {610A346D-1600-4DD3-B486-E0F225CDB360}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
