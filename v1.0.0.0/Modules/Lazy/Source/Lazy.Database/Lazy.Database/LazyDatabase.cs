@@ -544,6 +544,27 @@ namespace Lazy.Database
         public abstract Int32 DeleteAll(String tableName, String[] keyFields, List<Object[]> keyValuesList);
 
         /// <summary>
+        /// Increment a table field value by one
+        /// </summary>
+        /// <param name="tableName">The increment table</param>
+        /// <param name="keyFields">The increment table key fields</param>
+        /// <param name="keyValues">The increment table key values</param>
+        /// <param name="incrementField">The increment field</param>
+        /// <returns>The incremented value</returns>
+        public abstract Int32 Increment(String tableName, String[] keyFields, Object[] keyValues, String incrementField);
+
+        /// <summary>
+        /// Increment a table field value by range
+        /// </summary>
+        /// <param name="tableName">The increment table</param>
+        /// <param name="keyFields">The increment table key fields</param>
+        /// <param name="keyValues">The increment table key values</param>
+        /// <param name="incrementField">The increment field</param>
+        /// <param name="range">The increment value</param>
+        /// <returns>The incremented values</returns>
+        public abstract Int32[] IncrementRange(String tableName, String[] keyFields, Object[] keyValues, String incrementField, Int32 range);
+
+        /// <summary>
         /// Convert a value to a database string format
         /// </summary>
         /// <param name="value">The value to be converted to the string format</param>

@@ -151,6 +151,24 @@ namespace Lazy.Database.Properties {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a The increment field cannot be null or empty!.
+        /// </summary>
+        public static string LazyDatabaseExceptionIncrementFieldNullOrEmpty {
+            get {
+                return ResourceManager.GetString("LazyDatabaseExceptionIncrementFieldNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a The increment range cannot be lower than one!.
+        /// </summary>
+        public static string LazyDatabaseExceptionIncrementRangeLowerThanOne {
+            get {
+                return ResourceManager.GetString("LazyDatabaseExceptionIncrementRangeLowerThanOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a The key fields array and key values array must have the same number of elements!.
         /// </summary>
         public static string LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch {

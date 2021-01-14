@@ -9,6 +9,7 @@
 using System;
 using System.Xml;
 using System.Data;
+using System.Linq;
 using System.Collections.Generic;
 
 using MySql.Data;
@@ -2309,6 +2310,91 @@ namespace Lazy.Database.MySql
             this.mySqlCommand.Transaction = this.mySqlTransaction;
 
             return this.mySqlCommand.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Increment a table field value by one
+        /// </summary>
+        /// <param name="tableName">The increment table</param>
+        /// <param name="keyFields">The increment table key fields</param>
+        /// <param name="keyValues">The increment table key values</param>
+        /// <param name="incrementField">The increment field</param>
+        /// <returns>The incremented value</returns>
+        public override Int32 Increment(String tableName, String[] keyFields, Object[] keyValues, String incrementField)
+        {
+            return IncrementRange(tableName, keyFields, keyValues, incrementField, 1)[0];
+        }
+
+        /// <summary>
+        /// Increment a table field value by range
+        /// </summary>
+        /// <param name="tableName">The increment table</param>
+        /// <param name="keyFields">The increment table key fields</param>
+        /// <param name="keyValues">The increment table key values</param>
+        /// <param name="incrementField">The increment field</param>
+        /// <param name="range">The increment value</param>
+        /// <returns>The incremented values</returns>
+        public override Int32[] IncrementRange(String tableName, String[] keyFields, Object[] keyValues, String incrementField, Int32 range)
+        {
+            #region Validations
+
+            if (this.mySqlConnection == null || this.mySqlConnection.State == ConnectionState.Closed)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionConnectionNotOpen);
+
+            if (String.IsNullOrEmpty(tableName) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionTableNameNullOrEmpty);
+
+            if (keyFields == null || keyFields.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsNullOrZeroLenght);
+
+            if (keyValues == null || keyValues.Length == 0)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyValuesNullOrZeroLenght);
+
+            if (keyFields.Length != keyValues.Length)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch);
+
+            if (String.IsNullOrEmpty(incrementField) == true)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionIncrementFieldNullOrEmpty);
+
+            if (range < 1)
+                throw new Exception(Lazy.Database.Properties.Resources.LazyDatabaseExceptionIncrementRangeLowerThanOne);
+
+            #endregion Validations
+
+            String keyFieldsString = String.Empty;
+            foreach (String keyField in keyFields)
+                keyFieldsString += keyField + " = :" + keyField + " and ";
+            keyFieldsString = keyFieldsString.Remove(keyFieldsString.Length - 5, 5);
+
+            String sql = "select " + incrementField + " from " + tableName + " where " + keyFieldsString;
+            Int32 lastIncrement = LazyConvert.ToInt32(QueryValue(sql, keyValues, keyFields), -1);
+
+            String[] fields = null;
+            Object[] values = null;
+
+            if (lastIncrement == -1)
+            {
+                lastIncrement = 0;
+
+                fields = new String[keyFields.Length + 1];
+                keyFields.CopyTo(fields, 0);
+                fields[fields.Length - 1] = incrementField;
+
+                values = new Object[keyValues.Length + 1];
+                keyValues.CopyTo(values, 0);
+                values[values.Length - 1] = lastIncrement + range;
+
+                Insert(tableName, fields, values);
+            }
+            else
+            {
+                fields = new String[] { incrementField };
+                values = new Object[] { lastIncrement + range };
+
+                Update(tableName, fields, values, keyFields, keyValues);
+            }
+
+            return Enumerable.Range(lastIncrement + 1, range).ToArray();
         }
 
         /// <summary>

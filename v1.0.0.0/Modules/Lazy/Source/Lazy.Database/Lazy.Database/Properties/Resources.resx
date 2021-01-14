@@ -147,6 +147,12 @@
   <data name="LazyDatabaseExceptionFieldsNullOrZeroLenght" xml:space="preserve">
     <value>The fields array cannot be null or zero lenght!</value>
   </data>
+  <data name="LazyDatabaseExceptionIncrementFieldNullOrEmpty" xml:space="preserve">
+    <value>The increment field cannot be null or empty!</value>
+  </data>
+  <data name="LazyDatabaseExceptionIncrementRangeLowerThanOne" xml:space="preserve">
+    <value>The increment range cannot be lower than one!</value>
+  </data>
   <data name="LazyDatabaseExceptionKeyFieldsAndKeyValuesNotMatch" xml:space="preserve">
     <value>The key fields array and key values array must have the same number of elements!</value>
   </data>
