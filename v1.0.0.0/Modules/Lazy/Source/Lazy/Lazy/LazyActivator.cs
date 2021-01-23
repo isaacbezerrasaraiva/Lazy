@@ -60,6 +60,17 @@ namespace Lazy
             {
                 return Activator.CreateInstance(Assembly.LoadFrom(assemblyPath).GetType(classFullName), parameters);
             }
+
+            /// <summary>
+            /// Get an object type of the specified class located on specified assembly
+            /// </summary>
+            /// <param name="assemblyPath">The assembly path witch contains the desired class</param>
+            /// <param name="classFullName">The class name with its namespace</param>
+            /// <returns>The object type</returns>
+            public static Type GetType(String assemblyPath, String classFullName)
+            {
+                return Assembly.LoadFrom(assemblyPath).GetType(classFullName);
+            }
         }
     }
 }
