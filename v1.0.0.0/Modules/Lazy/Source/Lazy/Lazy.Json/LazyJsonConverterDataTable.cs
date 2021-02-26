@@ -103,17 +103,15 @@ namespace Lazy.Json
                 {
                     writer.WriteStartObject();
                     writer.WritePropertyName(ORIGINAL_KEY);
-                    writer.WriteStartArray();
+                    writer.WriteStartObject();
 
                     foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
                     {
-                        writer.WriteStartObject();
                         writer.WritePropertyName(dataColumn.ColumnName);
                         writer.WriteValue(dataRow[dataColumn.ColumnName, DataRowVersion.Original]);
-                        writer.WriteEndObject();
                     }
 
-                    writer.WriteEndArray();
+                    writer.WriteEndObject();
                     writer.WriteEndObject();
                 }
 
@@ -254,12 +252,11 @@ namespace Lazy.Json
 
                     #endregion Validate OriginalKey property missing
 
-                    reader.Read(); // StartArray
                     reader.Read(); // StartObject
+                    reader.Read(); // PropertyName
 
-                    while (reader.TokenType != JsonToken.EndArray)
+                    while (reader.TokenType != JsonToken.EndObject)
                     {
-                        reader.Read(); // PropertyName
                         String originalKeyName = (String)reader.Value!;
 
                         reader.Read(); // PropertyValue
@@ -267,8 +264,7 @@ namespace Lazy.Json
 
                         originalKeyList.Add(originalKeyName, originalKeyValue);
 
-                        reader.Read(); // EndObject
-                        reader.Read(); // StartObject Or EndArray if Done
+                        reader.Read(); // PropertyName or EndObject if done
                     }
 
                     reader.Read(); // EndObject

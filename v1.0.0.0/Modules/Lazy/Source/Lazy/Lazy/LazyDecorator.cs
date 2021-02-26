@@ -1,6 +1,6 @@
 ﻿// LazyDecorator.cs
 //
-// This file is integrated part of Ark project
+// This file is integrated part of Lazy project
 // Licensed under "Gnu General Public License Version 3"
 //
 // Created by Isaac Bezerra Saraiva
