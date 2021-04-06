@@ -10,12 +10,100 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Data;
+using System.Text;
 using System.Security.Cryptography;
 
 namespace Lazy
 {
     public static class LazySecurity
     {
+        public static class Hash
+        {
+            public static class SHA256
+            {
+                #region Variables
+                #endregion Variables
+
+                #region Methods
+
+                /// <summary>
+                /// Generate and hashed string based on SHA 256 algorithm
+                /// </summary>
+                /// <param name="data">The string to be hashed</param>
+                /// <returns>The hashed string</returns>
+                public static String Generate(String data)
+                {
+                    HashAlgorithm hashAlgorithm = new SHA256CryptoServiceProvider();
+                    Byte[] buffer = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
+                    hashAlgorithm.Dispose();
+                    hashAlgorithm = null;
+
+                    return Convert.ToBase64String(buffer);
+                }
+
+                #endregion Methods
+
+                #region Properties
+                #endregion Properties
+            }
+
+            public static class SHA384
+            {
+                #region Variables
+                #endregion Variables
+
+                #region Methods
+
+                /// <summary>
+                /// Generate and hashed string based on SHA 384 algorithm
+                /// </summary>
+                /// <param name="data">The string to be hashed</param>
+                /// <returns>The hashed string</returns>
+                public static String Generate(String data)
+                {
+                    HashAlgorithm hashAlgorithm = new SHA384CryptoServiceProvider();
+                    Byte[] buffer = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
+                    hashAlgorithm.Dispose();
+                    hashAlgorithm = null;
+
+                    return Convert.ToBase64String(buffer);
+                }
+
+                #endregion Methods
+
+                #region Properties
+                #endregion Properties
+            }
+
+            public static class SHA512
+            {
+                #region Variables
+                #endregion Variables
+
+                #region Methods
+
+                /// <summary>
+                /// Generate and hashed string based on SHA 512 algorithm
+                /// </summary>
+                /// <param name="data">The string to be hashed</param>
+                /// <returns>The hashed string</returns>
+                public static String Generate(String data)
+                {
+                    HashAlgorithm hashAlgorithm = new SHA512CryptoServiceProvider();
+                    Byte[] buffer = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
+                    hashAlgorithm.Dispose();
+                    hashAlgorithm = null;
+
+                    return Convert.ToBase64String(buffer);
+                }
+
+                #endregion Methods
+
+                #region Properties
+                #endregion Properties
+            }
+        }
+
         public static class Cryptography
         {
             public static class Aes
