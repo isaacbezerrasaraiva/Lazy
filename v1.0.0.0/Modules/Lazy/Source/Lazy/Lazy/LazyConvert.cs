@@ -67,6 +67,28 @@ namespace Lazy
         }
 
         /// <summary>
+        /// Try convert an Object value to Char value
+        /// </summary>
+        /// <param name="value">The Object value to convert</param>
+        /// <returns>The converted Char value</returns>
+        public static Char ToChar(Object value)
+        {
+            return Convert.ToChar(value);
+        }
+
+        /// <summary>
+        /// Try convert an Object value to Char value
+        /// </summary>
+        /// <param name="value">The Object value to convert</param>
+        /// <param name="failValue">The Char value to return if fail to convert</param>
+        /// <returns>The converted Char value or the fail Char value</returns>
+        public static Char ToChar(Object value, Char failValue)
+        {
+            try { return Convert.ToChar(value); }
+            catch { return failValue; }
+        }
+
+        /// <summary>
         /// Try convert an Object value to String value
         /// </summary>
         /// <param name="value">The Object value to convert</param>
