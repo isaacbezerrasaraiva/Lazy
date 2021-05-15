@@ -87,5 +87,27 @@ namespace Lazy
             try { return Convert.ToString(value); }
             catch { return failValue; }
         }
+
+        /// <summary>
+        /// Try convert an Object value to DateTime value
+        /// </summary>
+        /// <param name="value">The Object value to convert</param>
+        /// <returns>The converted DateTime value</returns>
+        public static DateTime ToDateTime(Object value)
+        {
+            return Convert.ToDateTime(value);
+        }
+
+        /// <summary>
+        /// Try convert an Object value to DateTime value
+        /// </summary>
+        /// <param name="value">The Object value to convert</param>
+        /// <param name="failValue">The DateTime value to return if fail to convert</param>
+        /// <returns>The converted DateTime value or the fail DateTime value</returns>
+        public static DateTime ToDateTime(Object value, DateTime failValue)
+        {
+            try { return Convert.ToDateTime(value); }
+            catch { return failValue; }
+        }
     }
 }
