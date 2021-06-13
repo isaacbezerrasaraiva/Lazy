@@ -26,6 +26,12 @@
     <PackageReference Include="Lazy" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Components\Controls\LazyPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PostBuildEvent>
       xcopy /y $(SolutionDir)Lazy.Forms\Lazy.Forms.Win\bin\Debug\netcoreapp3.1\Lazy.Forms.Win.dll $(SolutionDir)..\..\..\Release\Bin\Lazy.Forms.Win\1.0.0\lib\netcoreapp3.1\
