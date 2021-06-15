@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Components\Controls\LazyButton - Cópia.cs" />
+    <Compile Update="Components\Controls\LazyPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Components\Controls\LazyPanel.cs">
       <SubType>Component</SubType>
     </Compile>
