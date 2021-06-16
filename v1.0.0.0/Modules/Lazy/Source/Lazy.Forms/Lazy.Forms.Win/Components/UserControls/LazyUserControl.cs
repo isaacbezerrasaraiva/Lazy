@@ -29,7 +29,7 @@ namespace Lazy.Forms.Win
         #region Variables
 
         private Object lastParent;
-        private Boolean keepCenteredToParent;
+        private Boolean dockOnCenter;
 
         #endregion Variables
 
@@ -70,7 +70,7 @@ namespace Lazy.Forms.Win
 
         private void OnParentSizeChanged(Object sender, EventArgs e)
         {
-            if (this.DesignMode == false && this.keepCenteredToParent == true)
+            if (this.DesignMode == false && this.dockOnCenter == true)
                 this.Location = new Point((this.Parent.Size.Width / 2) - (this.Width / 2), (this.Parent.Size.Height / 2) - (this.Height / 2));
         }
 
@@ -78,10 +78,10 @@ namespace Lazy.Forms.Win
 
         #region Properties
 
-        public Boolean KeepCenteredToParent
+        public Boolean DockOnCenter
         {
-            get { return this.keepCenteredToParent; }
-            set { this.keepCenteredToParent = value; }
+            get { return this.dockOnCenter; }
+            set { this.dockOnCenter = value; }
         }
 
         #endregion Properties
