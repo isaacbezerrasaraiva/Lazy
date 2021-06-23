@@ -36,7 +36,6 @@ namespace Lazy.Forms.Win
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "LazyUserControl";
-            this.ParentChanged += new System.EventHandler(this.OnParentChanged);
             this.ResumeLayout(false);
 
         }

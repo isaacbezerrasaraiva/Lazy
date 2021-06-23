@@ -39,6 +39,12 @@ namespace Lazy.Forms.Win
         {
             InitializeComponent();
 
+            InitializeComponentDynamic();
+        }
+
+        private void InitializeComponentDynamic()
+        {
+            this.ParentChanged += OnParentChanged;
             this.ParentSizeChanged += OnParentSizeChanged;
         }
 
