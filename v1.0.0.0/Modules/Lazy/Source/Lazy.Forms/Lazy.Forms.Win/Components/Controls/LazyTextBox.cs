@@ -37,6 +37,7 @@ namespace Lazy.Forms.Win
 
         public LazyTextBox()
         {
+            this.ParentChanged += OnParentChanged;
             this.ParentSizeChanged += OnParentSizeChanged;
         }
 
@@ -44,10 +45,8 @@ namespace Lazy.Forms.Win
 
         #region Methods
 
-        protected override void OnParentChanged(EventArgs e)
+        private void OnParentChanged(Object sender, EventArgs e)
         {
-            base.OnParentChanged(e);
-
             if (this.lastParent != null)
             {
                 if (this.lastParent != this.Parent)

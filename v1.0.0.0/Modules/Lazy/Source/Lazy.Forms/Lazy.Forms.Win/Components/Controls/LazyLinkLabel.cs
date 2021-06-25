@@ -33,33 +33,31 @@ namespace Lazy.Forms.Win
         {
             this.linkColorTemp = this.LinkColor;
             this.LinkHover = this.LinkColor;
+
+            this.MouseEnter += OnMouseEnter;
+            this.MouseLeave += OnMouseLeave;
+            this.Click += OnClick;
         }
 
         #endregion Constructors
 
         #region Methods
 
-        protected override void OnClick(EventArgs e)
+        private void OnMouseEnter(Object sender, EventArgs e)
         {
-            base.OnClick(e);
-
-            if (this.AutoOpenUrl == true)
-                Process.Start(new ProcessStartInfo(this.Url) { UseShellExecute = true });
-        }
-
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-
             this.linkColorTemp = this.LinkColor;
             this.LinkColor = this.LinkHover;
         }
 
-        protected override void OnMouseLeave(EventArgs e)
+        private void OnMouseLeave(Object sender, EventArgs e)
         {
-            base.OnMouseLeave(e);
-
             this.LinkColor = this.linkColorTemp;
+        }
+
+        private void OnClick(Object sender, EventArgs e)
+        {
+            if (this.AutoOpenUrl == true)
+                Process.Start(new ProcessStartInfo(this.Url) { UseShellExecute = true });
         }
 
         #endregion Methods

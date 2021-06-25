@@ -23,11 +23,12 @@ namespace Lazy.Forms.Win
     {
         #region Variables
 
+        private Int32 lastX;
+        private Int32 lastY;
         private Int32 lastWidth;
         private Int32 lastHeight;
-        private Int32 lastLocationX;
-        private Int32 lastLocationY;
-        private Boolean drawAsCircle;
+        private Boolean drawAsSquare;
+        private Boolean drawAsEllipse;
 
         #endregion Variables
 
@@ -35,46 +36,59 @@ namespace Lazy.Forms.Win
 
         public LazyPictureBox()
         {
-            this.drawAsCircle = false;
-
-            this.lastWidth = 0;
-            this.lastHeight = 0;
-            this.lastLocationX = this.Location.X;
-            this.lastLocationY = this.Location.Y;
+            this.LocationChanged += OnLocationChanged;
+            this.SizeChanged += OnSizeChanged;
         }
 
         #endregion Constructors
 
         #region Methods
 
-        protected override void OnResize(EventArgs e)
+        private void OnLocationChanged(Object sender, EventArgs e)
         {
-            base.OnResize(e);
+            this.lastX = this.Location.X;
+            this.lastY = this.Location.Y;
+        }
 
-            if (this.drawAsCircle == true)
+        private void OnSizeChanged(Object sender, EventArgs e)
+        {
+            if (this.drawAsSquare == true)
             {
-                if (this.Location.X != this.lastLocationX)
+                if (this.Location.X < this.lastX)
                 {
-                    this.Height = this.Width;
+                    this.Size = new Size(this.Size.Width, this.Size.Width);
+                    this.Location = new Point(this.Location.X, this.Location.Y - (this.lastX - this.Location.X));
                 }
-                else if (this.Location.Y != this.lastLocationY)
+                else if (this.Location.X > this.lastX)
                 {
-                    this.Width = this.Height;
+                    this.Size = new Size(this.Size.Width, this.Size.Width);
+                    this.Location = new Point(this.Location.X, this.Location.Y + (this.Location.X - this.lastX));
                 }
-                else
+                else if (this.Location.Y < this.lastY)
                 {
-                    if (this.Width != this.lastWidth)
-                        this.Height = this.Width;
-
-                    if (this.Height != this.lastHeight)
-                        this.Width = this.Height;
+                    this.Size = new Size(this.Size.Height, this.Size.Height);
+                    this.Location = new Point(this.Location.X - (this.lastY - this.Location.Y), this.Location.Y);
+                }
+                else if (this.Location.Y > this.lastY)
+                {
+                    this.Size = new Size(this.Size.Height, this.Size.Height);
+                    this.Location = new Point(this.Location.X + (this.Location.Y - this.lastY), this.Location.Y);
+                }
+                else if (this.lastWidth != this.Size.Width)
+                {
+                    this.Size = new Size(this.Size.Width, this.Size.Width);
+                }
+                else if (this.lastHeight != this.Size.Height)
+                {
+                    this.Size = new Size(this.Size.Height, this.Size.Height);
                 }
 
-                this.lastWidth = this.Width;
-                this.lastHeight = this.Height;
-                this.lastLocationX = this.Location.X;
-                this.lastLocationY = this.Location.Y;
+                this.lastWidth = this.Size.Width;
+                this.lastHeight = this.Size.Height;
+            }
 
+            if (this.drawAsEllipse == true)
+            {
                 GraphicsPath graphicsPath = new GraphicsPath();
                 graphicsPath.AddEllipse(0, 0, this.Width - 2, this.Height - 2);
                 this.Region = new Region(graphicsPath);
@@ -85,24 +99,33 @@ namespace Lazy.Forms.Win
 
         #region Properties
 
-        public Boolean DrawAsCircle
+        public Boolean DrawAsSquare
         {
-            get { return this.drawAsCircle; }
-            set 
+            get { return this.drawAsSquare; }
+            set
             {
-                this.drawAsCircle = value;
-                
-                if (this.drawAsCircle == true)
+                this.drawAsSquare = value;
+
+                if (this.drawAsSquare == true)
+                    OnSizeChanged(this, null);
+            }
+        }
+
+        public Boolean DrawAsEllipse
+        {
+            get { return this.drawAsEllipse; }
+            set
+            {
+                this.drawAsEllipse = value;
+
+                if (this.drawAsEllipse == true)
                 {
-                    OnResize(new EventArgs());
+                    GraphicsPath graphicsPath = new GraphicsPath();
+                    graphicsPath.AddEllipse(0, 0, this.Width - 2, this.Height - 2);
+                    this.Region = new Region(graphicsPath);
                 }
                 else
                 {
-                    this.lastWidth = 0;
-                    this.lastHeight = 0;
-                    this.lastLocationX = this.Location.X;
-                    this.lastLocationY = this.Location.Y;
-
                     this.Region = null;
                 }
             }
