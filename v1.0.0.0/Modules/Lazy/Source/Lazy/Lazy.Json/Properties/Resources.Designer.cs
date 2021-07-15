@@ -61,11 +61,11 @@ namespace Lazy.Json.Properties {
         }
         
         /// <summary>
-        ///   Consulta uma cadeia de caracteres localizada semelhante a OriginalKey property is missing!.
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Original data property is missing!.
         /// </summary>
-        public static string LazyJsonPropertyMissingOriginalKey {
+        public static string LazyJsonPropertyMissingOriginalData {
             get {
-                return ResourceManager.GetString("LazyJsonPropertyMissingOriginalKey", resourceCulture);
+                return ResourceManager.GetString("LazyJsonPropertyMissingOriginalData", resourceCulture);
             }
         }
         
@@ -79,7 +79,16 @@ namespace Lazy.Json.Properties {
         }
         
         /// <summary>
-        ///   Consulta uma cadeia de caracteres localizada semelhante a Unexpected json token when reading DataTable ({0})!.
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A specific token &apos;{0}&apos; was expected!.
+        /// </summary>
+        public static string LazyJsonTokenExpected {
+            get {
+                return ResourceManager.GetString("LazyJsonTokenExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Unexpected json token &apos;{0}&apos; when reading DataTable!.
         /// </summary>
         public static string LazyJsonTokenUnexpected {
             get {

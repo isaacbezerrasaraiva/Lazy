@@ -26,7 +26,10 @@ namespace Lazy.Json
         private const string ROW_STATE_MODIFIED = "Modified";
         private const string ROW_STATE_UNCHANGED = "Unchanged";
         private const string ROW_STATE_DELETED = "Deleted";
-        private const string ORIGINAL_KEY = "OriginalKey";
+        private const string ROW_PROPS = "Props";
+        private const string ROW_DATA = "Data";
+        private const string ROW_DATA_ORIGINAL = "Original";
+        private const string ROW_DATA_CURRENT = "Current";
 
         #endregion Consts
 
@@ -80,9 +83,15 @@ namespace Lazy.Json
 
             foreach (DataRow dataRow in dataTable.Rows)
             {
+                writer.WriteStartObject();
+
+                #region Write Props
+
+                writer.WritePropertyName(ROW_PROPS);
+                writer.WriteStartObject();
+
                 #region Write RowState
 
-                writer.WriteStartObject();
                 writer.WritePropertyName(ROW_STATE);
 
                 switch (dataRow.RowState)
@@ -93,32 +102,38 @@ namespace Lazy.Json
                     case DataRowState.Deleted: writer.WriteValue(ROW_STATE_DELETED); break;
                 }
 
-                writer.WriteEndObject();
-
                 #endregion Write RowState
 
-                #region Write OriginalKey
+                writer.WriteEndObject();
+
+                #endregion Write Props
+
+                #region Write Data
+
+                writer.WritePropertyName(ROW_DATA);
+                writer.WriteStartObject();
+
+                #region Write Data Original
+
+                writer.WritePropertyName(ROW_DATA_ORIGINAL);
+                writer.WriteStartObject();
 
                 if (dataRow.RowState == DataRowState.Modified)
                 {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName(ORIGINAL_KEY);
-                    writer.WriteStartObject();
-
                     foreach (DataColumn dataColumn in dataRow.Table.PrimaryKey)
                     {
                         writer.WritePropertyName(dataColumn.ColumnName);
                         writer.WriteValue(dataRow[dataColumn.ColumnName, DataRowVersion.Original]);
                     }
-
-                    writer.WriteEndObject();
-                    writer.WriteEndObject();
                 }
 
-                #endregion Write OriginalKey
+                writer.WriteEndObject();
 
-                #region Write columns
+                #endregion Write Data Original
 
+                #region Write Data Current
+
+                writer.WritePropertyName(ROW_DATA_CURRENT);
                 writer.WriteStartObject();
 
                 foreach (DataColumn column in dataRow.Table.Columns)
@@ -134,7 +149,13 @@ namespace Lazy.Json
 
                 writer.WriteEndObject();
 
-                #endregion Write columns
+                #endregion Write Data Current
+
+                writer.WriteEndObject();
+
+                #endregion Write Data
+
+                writer.WriteEndObject();
             }
 
             writer.WriteEndArray();
@@ -150,52 +171,33 @@ namespace Lazy.Json
         /// <returns>The object parsed from json</returns>
         public override Object? ReadJson(JsonReader reader, Type objectType, Object? existingValue, JsonSerializer serializer)
         {
-            #region Read null
-
             if (reader.TokenType == JsonToken.Null)
                 return null;
 
-            #endregion Read null
+            if (reader.TokenType != JsonToken.PropertyName)
+                throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
             if (!(existingValue is DataTable dataTable))
                 dataTable = (DataTable)Activator.CreateInstance(objectType);
+            dataTable.TableName = (String)reader.Value!;
 
-            #region Read table name
+            reader.Read(); // StartArray
+            if (reader.TokenType == JsonToken.Null)
+                return dataTable;
 
-            if (reader.TokenType == JsonToken.PropertyName)
-            {
-                dataTable.TableName = (String)reader.Value!;
-
-                #region Read empty table
-
-                reader.Read();
-
-                if (reader.TokenType == JsonToken.Null)
-                    return dataTable;
-
-                #endregion Read empty table
-            }
-
-            #endregion Read table name
-
-            #region Validate token
-
+            // Validate table start array
             if (reader.TokenType != JsonToken.StartArray)
                 throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
-            #endregion Validate token
+            reader.Read(); // StartObject or EndArray
+            if (reader.TokenType == JsonToken.EndArray)
+                return dataTable;
 
-            #region Read rows
-
-            reader.Read();
+            if (reader.TokenType != JsonToken.StartObject)
+                throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
             while (reader.TokenType != JsonToken.EndArray)
-            {
                 ReadRows(reader, dataTable, serializer);
-                reader.Read();
-            }
-
-            #endregion Read rows
 
             return dataTable;
         }
@@ -208,210 +210,200 @@ namespace Lazy.Json
         /// <param name="serializer">The json serializer</param>
         private static void ReadRows(JsonReader reader, DataTable dataTable, JsonSerializer serializer)
         {
-            DataRow dataRow = dataTable.NewRow();
-            reader.Read();
-
-            #region Read RowState
+            String propertyName = null;
+            Object propertyValue = null;
 
             String rowState = null;
+            Dictionary<String, Object> originalData = null;
+            Dictionary<String, Object> currentData = null;
 
-            if (reader.TokenType == JsonToken.PropertyName)
+            reader.Read(); // PropertyName or EndObject
+            while (reader.TokenType != JsonToken.EndObject)
             {
-                String propertyValue = ((String)reader.Value!).ToUpper();
-                
-                #region Validate RowState property missing
-                
-                if (propertyValue != ROW_STATE.ToUpper())
-                    throw new JsonSerializationException(Lazy.Json.Properties.Resources.LazyJsonPropertyMissingRowState);
+                if (reader.TokenType != JsonToken.PropertyName)
+                    throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
-                #endregion Validate RowState property missing
+                propertyName = ((String)reader.Value!).ToUpper();
 
-                reader.Read(); // StartObject
-                rowState = ((String)reader.Value!).ToUpper();
-                reader.Read(); // EndObject
-                reader.Read(); // StartObject
-                reader.Read(); // PropertyName
-            }
-
-            #endregion Read RowState
-
-            #region Read OriginalKey
-
-            Dictionary<String, Object> originalKeyList = new Dictionary<String, Object>();
-
-            if (rowState == ROW_STATE_MODIFIED.ToUpper())
-            {
-                if (reader.TokenType == JsonToken.PropertyName)
+                if (propertyName == ROW_PROPS.ToUpper())
                 {
-                    String propertyValue = ((String)reader.Value!).ToUpper();
-
-                    #region Validate OriginalKey property missing
-
-                    if (propertyValue != ORIGINAL_KEY.ToUpper())
-                        throw new JsonSerializationException(Lazy.Json.Properties.Resources.LazyJsonPropertyMissingOriginalKey);
-
-                    #endregion Validate OriginalKey property missing
-
                     reader.Read(); // StartObject
-                    reader.Read(); // PropertyName
+                    if (reader.TokenType != JsonToken.StartObject)
+                        throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
+                    reader.Read(); // PropertyName or EndObject
                     while (reader.TokenType != JsonToken.EndObject)
                     {
-                        String originalKeyName = (String)reader.Value!;
+                        if (reader.TokenType != JsonToken.PropertyName)
+                            throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
-                        reader.Read(); // PropertyValue
-                        Object originalKeyValue = reader.Value;
+                        propertyName = ((String)reader.Value!).ToUpper();
 
-                        originalKeyList.Add(originalKeyName, originalKeyValue);
+                        if (propertyName == ROW_STATE.ToUpper())
+                        {
+                            #region Read row state
 
-                        reader.Read(); // PropertyName or EndObject if done
+                            reader.Read(); // PropertyValue
+                            if (reader.TokenType == JsonToken.Null)
+                                throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                            rowState = ((String)reader.Value!).ToUpper();
+
+                            #endregion Read row state
+                        }
+
+                        reader.Read(); // PropertyName or EndObject
                     }
-
-                    reader.Read(); // EndObject
+                }
+                else if (propertyName == ROW_DATA.ToUpper())
+                {
                     reader.Read(); // StartObject
-                    reader.Read(); // PropertyName
-                }
-            }
+                    if (reader.TokenType != JsonToken.StartObject)
+                        throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
 
-            #endregion Read OriginalKey
-
-            #region Read row
-
-            while (reader.TokenType == JsonToken.PropertyName)
-            {
-                String columnName = (String)reader.Value!;
-
-                reader.Read();
-
-                DataColumn dataColumn = dataTable.Columns[columnName];
-
-                if (dataColumn == null)
-                {
-                    Type columnType = GetColumnDataType(reader);
-                    dataColumn = new DataColumn(columnName, columnType);
-                    dataTable.Columns.Add(dataColumn);
-                }
-
-                if (dataColumn.DataType == typeof(DataTable))
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                        reader.Read();
-
-                    DataTable nestedDataTable = new DataTable();
-
-                    while (reader.TokenType != JsonToken.EndArray)
+                    reader.Read(); // PropertyName or EndObject
+                    while (reader.TokenType != JsonToken.EndObject)
                     {
-                        ReadRows(reader, nestedDataTable, serializer);
-                        reader.Read();
+                        if (reader.TokenType != JsonToken.PropertyName)
+                            throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                        propertyName = ((String)reader.Value!).ToUpper();
+
+                        if (propertyName == ROW_DATA_ORIGINAL.ToUpper())
+                        {
+                            #region Read original data
+
+                            originalData = new Dictionary<String, Object>();
+
+                            reader.Read(); // StartObject
+                            if (reader.TokenType != JsonToken.StartObject)
+                                throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                            reader.Read(); // PropertyName or EndObject
+                            while (reader.TokenType != JsonToken.EndObject)
+                            {
+                                if (reader.TokenType != JsonToken.PropertyName)
+                                    throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                                propertyName = (String)reader.Value!;
+                                reader.Read(); // PropertyValue
+                                propertyValue = ReadPropertyValue(reader);
+                                reader.Read(); // PropertyName or EndObject
+
+                                originalData.Add(propertyName, propertyValue);
+                            }
+
+                            #endregion Read original data
+                        }
+                        else if (propertyName == ROW_DATA_CURRENT.ToUpper())
+                        {
+                            #region Read current data
+
+                            currentData = new Dictionary<String, Object>();
+
+                            reader.Read(); // StartObject
+                            if (reader.TokenType != JsonToken.StartObject)
+                                throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                            reader.Read(); // PropertyName or EndObject
+                            while (reader.TokenType != JsonToken.EndObject)
+                            {
+                                if (reader.TokenType != JsonToken.PropertyName)
+                                    throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, reader.TokenType));
+
+                                propertyName = (String)reader.Value!;
+                                reader.Read(); // PropertyValue
+                                propertyValue = ReadPropertyValue(reader);
+                                reader.Read(); // PropertyName or EndObject
+
+                                currentData.Add(propertyName, propertyValue);
+                            }
+
+                            #endregion Read current data
+                        }
+                        else
+                        {
+                            throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenExpected, ROW_DATA_ORIGINAL + " or " + ROW_DATA_CURRENT));
+                        }
+
+                        reader.Read(); // PropertyName or EndObject
                     }
-
-                    dataRow[columnName] = nestedDataTable;
-                }
-                else if (dataColumn.DataType.IsArray && dataColumn.DataType != typeof(Byte[]))
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                        reader.Read();
-
-                    List<Object?> objectList = new List<Object?>();
-
-                    while (reader.TokenType != JsonToken.EndArray)
-                    {
-                        objectList.Add(reader.Value);
-                        reader.Read();
-                    }
-
-                    Array destinationArray = Array.CreateInstance(dataColumn.DataType.GetElementType(), objectList.Count);
-                    ((IList)objectList).CopyTo(destinationArray, 0);
-
-                    dataRow[columnName] = destinationArray;
                 }
                 else
                 {
-                    Object columnValue = (reader.Value != null) ? serializer.Deserialize(reader, dataColumn.DataType) ?? DBNull.Value : DBNull.Value;
-                    dataRow[columnName] = columnValue;
+                    throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenExpected, ROW_PROPS + " or " + ROW_DATA));
                 }
 
-                reader.Read();
+                reader.Read(); // PropertyName or EndObject
             }
 
-            dataRow.EndEdit();
+            reader.Read(); // StartObject or EndArray
+
+            if (rowState != ROW_STATE_ADDED.ToUpper() && rowState != ROW_STATE_MODIFIED.ToUpper() && rowState != ROW_STATE_DELETED.ToUpper() && rowState != ROW_STATE_UNCHANGED.ToUpper())
+                throw new JsonSerializationException(Lazy.Json.Properties.Resources.LazyJsonPropertyMissingRowState);
+
+            DataRow dataRow = dataTable.NewRow();
             dataTable.Rows.Add(dataRow);
-
-            #endregion Read row
-
-            #region Apply RowState
-
             dataRow.AcceptChanges();
 
-            if (rowState == ROW_STATE_ADDED.ToUpper())
+            if (rowState == ROW_STATE_MODIFIED.ToUpper())
             {
-                dataRow.SetAdded();
-            }
-            else if (rowState == ROW_STATE_MODIFIED.ToUpper())
-            {
-                #region Apply OriginalKey
+                if (originalData == null)
+                    throw new JsonSerializationException(Lazy.Json.Properties.Resources.LazyJsonPropertyMissingOriginalData);
 
-                Dictionary<String, Object> currentKeyList = new Dictionary<String, Object>();
-
-                foreach (KeyValuePair<String, Object> originalKey in originalKeyList)
+                foreach (KeyValuePair<String, Object> item in originalData)
                 {
-                    currentKeyList.Add(originalKey.Key, dataRow[originalKey.Key]);
-                    dataRow[originalKey.Key] = originalKey.Value;
+                    if (dataTable.Columns.Contains(item.Key) == false)
+                        dataTable.Columns.Add(new DataColumn(item.Key, item.Value.GetType()));
+
+                    dataRow[item.Key] = item.Value;
                 }
 
                 dataRow.AcceptChanges();
+            }
 
-                foreach (KeyValuePair<String, Object> currentKey in currentKeyList)
-                    dataRow[currentKey.Key] = currentKey.Value;
+            foreach (KeyValuePair<String, Object> item in currentData)
+            {
+                if (dataTable.Columns.Contains(item.Key) == false)
+                    dataTable.Columns.Add(new DataColumn(item.Key, item.Value.GetType()));
 
-                #endregion Apply OriginalKey
+                dataRow[item.Key] = item.Value;
+            }
 
-                if (dataRow.RowState == DataRowState.Unchanged)
-                    dataRow.SetModified();
+            if (rowState == ROW_STATE_ADDED.ToUpper())
+            {
+                dataRow.AcceptChanges();
+                dataRow.SetAdded();
             }
             else if (rowState == ROW_STATE_DELETED.ToUpper())
             {
+                dataRow.AcceptChanges();
                 dataRow.Delete();
             }
-
-            #endregion Apply RowState
+            else if (rowState == ROW_STATE_UNCHANGED.ToUpper())
+            {
+                dataRow.AcceptChanges();
+            }
         }
 
 #nullable disable annotations
 
         /// <summary>
-        /// Get column type
+        /// Read property value
         /// </summary>
         /// <param name="reader">The json reader</param>
-        /// <returns>The column type</returns>
-        private static Type GetColumnDataType(JsonReader reader)
+        /// <returns>The property value</returns>
+        private static Object ReadPropertyValue(JsonReader reader)
         {
-            JsonToken tokenType = reader.TokenType;
-
-            switch (tokenType)
+            switch (reader.TokenType)
             {
-                case JsonToken.Integer:
-                case JsonToken.Boolean:
-                case JsonToken.Float:
-                case JsonToken.String:
-                case JsonToken.Date:
-                case JsonToken.Bytes:
-                    return reader.ValueType!;
-
-                case JsonToken.Null:
-                case JsonToken.Undefined:
-                case JsonToken.EndArray:
-                    return typeof(String);
-
-                case JsonToken.StartArray:
-                    reader.Read();
-                    if (reader.TokenType == JsonToken.StartObject)
-                        return typeof(DataTable);
-                    Type arrayType = GetColumnDataType(reader);
-                    return arrayType.MakeArrayType();
-
-                default:
-                    throw new JsonSerializationException(String.Format(Lazy.Json.Properties.Resources.LazyJsonTokenUnexpected, tokenType));
+                case JsonToken.Integer: return (Int64)reader.Value;
+                case JsonToken.Boolean: return (Boolean)reader.Value;
+                case JsonToken.Float: return (Double)reader.Value;
+                case JsonToken.String: return (String)reader.Value;
+                case JsonToken.Date: return (DateTime)reader.Value;
+                case JsonToken.Bytes: return (Byte[])reader.Value;
+                default: return DBNull.Value;
             }
         }
 

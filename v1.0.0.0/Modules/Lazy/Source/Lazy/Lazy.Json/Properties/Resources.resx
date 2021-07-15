@@ -117,13 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LazyJsonPropertyMissingOriginalKey" xml:space="preserve">
-    <value>OriginalKey property is missing!</value>
+  <data name="LazyJsonPropertyMissingOriginalData" xml:space="preserve">
+    <value>Original data property is missing!</value>
   </data>
   <data name="LazyJsonPropertyMissingRowState" xml:space="preserve">
     <value>RowState property is missing!</value>
   </data>
+  <data name="LazyJsonTokenExpected" xml:space="preserve">
+    <value>A specific token '{0}' was expected!</value>
+  </data>
   <data name="LazyJsonTokenUnexpected" xml:space="preserve">
-    <value>Unexpected json token when reading DataTable ({0})!</value>
+    <value>Unexpected json token '{0}' when reading DataTable!</value>
   </data>
 </root>
